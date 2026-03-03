@@ -1,0 +1,68 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Account {
+  id           Int      @id @default(autoincrement())
+  name         String
+  platform     String?
+  targetAmount Float?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  allocations  AssetAllocation[]
+  transactions Transaction[]
+}
+
+model PriceCache {
+  id        Int      @id @default(autoincrement())
+  symbol    String
+  date      DateTime
+  price     Float
+  createdAt DateTime @default(now())
+  @@unique([symbol, date])
+}
+
+model Asset {
+  id           Int      @id @default(autoincrement())
+  name         String
+  symbol       String  @unique
+  type         String
+  currentPrice Float?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  allocations  AssetAllocation[]
+  transactions Transaction[]
+}
+
+model AssetAllocation {
+  id           Int      @id @default(autoincrement())
+  accountId    Int
+  assetId      Int
+  targetAmount Float
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  account      Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  asset        Asset    @relation(fields: [assetId], references: [id], onDelete: Cascade)
+}
+
+model Transaction {
+  id        Int      @id @default(autoincrement())
+  accountId Int
+  assetId   Int
+  type      String   // buy or sell
+  amount    Float
+  price     Float
+  shares    Float
+  date      DateTime
+  createdAt DateTime @default(now())
+  account   Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  asset     Asset    @relation(fields: [assetId], references: [id], onDelete: Cascade)
+}
