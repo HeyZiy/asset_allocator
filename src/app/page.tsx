@@ -56,12 +56,14 @@ export default function Home() {
   const [isAllocationOpen, setIsAllocationOpen] = useState(false);
   const [isAssetManageOpen, setIsAssetManageOpen] = useState(false);
   const [isEditAssetOpen, setIsEditAssetOpen] = useState(false);
+  const [isDepositCashOpen, setIsDepositCashOpen] = useState(false);
   
   // Selection Context
   const [selectedAccountId, setSelectedAccountId] = useState<number | null>(null);
   const [accountToDelete, setAccountToDelete] = useState<number | null>(null);
   const [accountForAllocation, setAccountForAllocation] = useState<number | null>(null);
   const [accountToEdit, setAccountToEdit] = useState<PortfolioAccount | null>(null);
+  const [accountForDeposit, setAccountForDeposit] = useState<PortfolioAccount | null>(null);
   const [editingAsset, setEditingAsset] = useState<any | null>(null);
   
   // Forms Data
@@ -77,6 +79,7 @@ export default function Home() {
   const [newAccount, setNewAccount] = useState({ name: '', platform: '', cash: '0' });
   const [editAccountData, setEditAccountData] = useState({ name: '', platform: '', targetAmount: '', cash: '' });
   const [editingAssetData, setEditingAssetData] = useState({ name: '', type: '', currentPrice: '' });
+  const [depositAmount, setDepositAmount] = useState('');
   const [newTx, setNewTx] = useState({ 
     accountId: 0, 
     type: 'buy', 
@@ -478,6 +481,43 @@ export default function Home() {
       setIsEditAccountOpen(true);
   };
 
+  const openDepositDialog = (account: PortfolioAccount) => {
+      setAccountForDeposit(account);
+      setDepositAmount('');
+      setIsDepositCashOpen(true);
+  };
+
+  const handleDepositCash = async () => {
+      if (!accountForDeposit || !depositAmount) {
+          return alert('请输入转入金额');
+      }
+
+      const amount = parseFloat(depositAmount);
+      if (isNaN(amount) || amount <= 0) {
+          return alert('请输入有效的正数金额');
+      }
+
+      const newCash = accountForDeposit.cash + amount;
+
+      const res = await fetch('/api/accounts', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+              id: accountForDeposit.id,
+              cash: newCash
+          }),
+      });
+
+      if (res.ok) {
+          setIsDepositCashOpen(false);
+          setAccountForDeposit(null);
+          setDepositAmount('');
+          fetchAllPortfolios();
+      } else {
+          alert('转入失败');
+      }
+  };
+
   const totalAssets = portfolios.reduce((sum, p) => sum + p.account.totalValue, 0);
 
   return (
@@ -645,6 +685,40 @@ export default function Home() {
                     <DialogFooter><Button onClick={handleUpdateAsset}>保存</Button></DialogFooter>
                 </DialogContent>
             </Dialog>
+
+            <Dialog open={isDepositCashOpen} onOpenChange={setIsDepositCashOpen}>
+                <DialogContent>
+                    <DialogHeader><DialogTitle>转入现金</DialogTitle></DialogHeader>
+                    {accountForDeposit && (
+                        <div className="grid gap-4 py-4">
+                            <div className="space-y-2">
+                                <p className="text-sm font-medium">账户: {accountForDeposit.name}</p>
+                                <p className="text-sm text-muted-foreground">当前现金: ¥{accountForDeposit.cash.toLocaleString()}</p>
+                            </div>
+                            <div className="grid grid-cols-4 items-center gap-4">
+                                <Label className="text-right">转入金额(¥)</Label>
+                                <Input 
+                                    type="number" 
+                                    value={depositAmount} 
+                                    onChange={e => setDepositAmount(e.target.value)} 
+                                    className="col-span-3" 
+                                    placeholder="0.00"
+                                />
+                            </div>
+                            <div className="text-sm text-muted-foreground space-y-1">
+                                <p>转入后现金余额:</p>
+                                <p className="text-lg font-bold">
+                                    ¥{((accountForDeposit.cash + (depositAmount ? parseFloat(depositAmount) : 0)) || 0).toLocaleString()}
+                                </p>
+                            </div>
+                        </div>
+                    )}
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setIsDepositCashOpen(false)}>取消</Button>
+                        <Button onClick={handleDepositCash}>确认转入</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
       </div>
 
@@ -680,6 +754,13 @@ export default function Home() {
                     <div className="text-right">
                         <div className="text-2xl font-bold">¥{portfolio.account.totalValue.toLocaleString()}</div>
                     </div>
+                    <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => openDepositDialog(portfolio.account)}
+                    >
+                        💰 转入现金
+                    </Button>
                     <Button 
                         size="sm" 
                         variant="ghost" 
@@ -735,8 +816,8 @@ export default function Home() {
                                         </div>
                                     </TableCell>
                                     <TableCell className="text-right">
-                                        <span className={pos.driftValue > 0 ? "text-green-600" : "text-red-500"}>
-                                            {pos.driftValue > 0 ? "+" : ""}{pos.driftValue.toLocaleString()}
+                                        <span className={pos.driftValue < 0 ? "text-red-500 font-bold" : pos.driftValue > 0 ? "text-green-600" : "text-gray-400"}>
+                                            {pos.driftValue.toLocaleString()}
                                         </span>
                                     </TableCell>
                                     <TableCell className="text-right">
