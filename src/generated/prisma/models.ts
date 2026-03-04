@@ -11,6 +11,7 @@
 export type * from './models/Account'
 export type * from './models/PriceCache'
 export type * from './models/Asset'
+export type * from './models/Holding'
 export type * from './models/AssetAllocation'
 export type * from './models/Transaction'
 export type * from './commonInputTypes'

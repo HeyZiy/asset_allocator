@@ -387,6 +387,7 @@ export const ModelName = {
   Account: 'Account',
   PriceCache: 'PriceCache',
   Asset: 'Asset',
+  Holding: 'Holding',
   AssetAllocation: 'AssetAllocation',
   Transaction: 'Transaction'
 } as const
@@ -404,7 +405,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "account" | "priceCache" | "asset" | "assetAllocation" | "transaction"
+    modelProps: "account" | "priceCache" | "asset" | "holding" | "assetAllocation" | "transaction"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -630,6 +631,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Holding: {
+      payload: Prisma.$HoldingPayload<ExtArgs>
+      fields: Prisma.HoldingFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.HoldingFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HoldingPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.HoldingFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HoldingPayload>
+        }
+        findFirst: {
+          args: Prisma.HoldingFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HoldingPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.HoldingFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HoldingPayload>
+        }
+        findMany: {
+          args: Prisma.HoldingFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HoldingPayload>[]
+        }
+        create: {
+          args: Prisma.HoldingCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HoldingPayload>
+        }
+        createMany: {
+          args: Prisma.HoldingCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.HoldingCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HoldingPayload>[]
+        }
+        delete: {
+          args: Prisma.HoldingDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HoldingPayload>
+        }
+        update: {
+          args: Prisma.HoldingUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HoldingPayload>
+        }
+        deleteMany: {
+          args: Prisma.HoldingDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.HoldingUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.HoldingUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HoldingPayload>[]
+        }
+        upsert: {
+          args: Prisma.HoldingUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HoldingPayload>
+        }
+        aggregate: {
+          args: Prisma.HoldingAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateHolding>
+        }
+        groupBy: {
+          args: Prisma.HoldingGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.HoldingGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.HoldingCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.HoldingCountAggregateOutputType> | number
+        }
+      }
+    }
     AssetAllocation: {
       payload: Prisma.$AssetAllocationPayload<ExtArgs>
       fields: Prisma.AssetAllocationFieldRefs
@@ -817,7 +892,9 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 export const AccountScalarFieldEnum = {
   id: 'id',
   name: 'name',
+  type: 'type',
   platform: 'platform',
+  cash: 'cash',
   targetAmount: 'targetAmount',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -843,6 +920,7 @@ export const AssetScalarFieldEnum = {
   symbol: 'symbol',
   type: 'type',
   currentPrice: 'currentPrice',
+  lastPriceUpdated: 'lastPriceUpdated',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -850,11 +928,24 @@ export const AssetScalarFieldEnum = {
 export type AssetScalarFieldEnum = (typeof AssetScalarFieldEnum)[keyof typeof AssetScalarFieldEnum]
 
 
+export const HoldingScalarFieldEnum = {
+  id: 'id',
+  accountId: 'accountId',
+  assetId: 'assetId',
+  shares: 'shares',
+  avgCost: 'avgCost',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type HoldingScalarFieldEnum = (typeof HoldingScalarFieldEnum)[keyof typeof HoldingScalarFieldEnum]
+
+
 export const AssetAllocationScalarFieldEnum = {
   id: 'id',
   accountId: 'accountId',
   assetId: 'assetId',
-  targetAmount: 'targetAmount',
+  targetPercent: 'targetPercent',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1024,6 +1115,7 @@ export type GlobalOmitConfig = {
   account?: Prisma.AccountOmit
   priceCache?: Prisma.PriceCacheOmit
   asset?: Prisma.AssetOmit
+  holding?: Prisma.HoldingOmit
   assetAllocation?: Prisma.AssetAllocationOmit
   transaction?: Prisma.TransactionOmit
 }

@@ -2,8 +2,9 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider        = "prisma-client-js"
+  output          = "../src/generated/prisma"
+  previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
@@ -13,12 +14,16 @@ datasource db {
 model Account {
   id           Int      @id @default(autoincrement())
   name         String
+  type         String?  // "cash", "investment" etc.
   platform     String?
-  targetAmount Float?
+  cash         Float    @default(0) // 账户现金余额
+  targetAmount Float?   // 账户总目标投入（可选）
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-  allocations  AssetAllocation[]
-  transactions Transaction[]
+  
+  allocations  AssetAllocation[] // 配置目标
+  transactions Transaction[]     // 交易流水
+  holdings     Holding[]         // 当前持仓（新增）
 }
 
 model PriceCache {
@@ -32,21 +37,39 @@ model PriceCache {
 
 model Asset {
   id           Int      @id @default(autoincrement())
-  name         String
-  symbol       String  @unique
-  type         String
+  name         String   @default("") // 允许默认为空，后续更新
+  symbol       String   @unique
+  type         String   @default("stock")
   currentPrice Float?
+  lastPriceUpdated DateTime? // 行情更新时间
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  
   allocations  AssetAllocation[]
   transactions Transaction[]
+  holdings     Holding[]
+}
+
+model Holding {
+  id        Int      @id @default(autoincrement())
+  accountId Int
+  assetId   Int
+  shares    Float    @default(0) // 当前持仓股数
+  avgCost   Float    @default(0) // 平均持仓成本
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  account   Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  asset     Asset    @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  @@unique([accountId, assetId]) // 每个账户对每种资产只有一条持仓记录
 }
 
 model AssetAllocation {
   id           Int      @id @default(autoincrement())
   accountId    Int
   assetId      Int
-  targetAmount Float
+  targetPercent Float   @default(0) // 目标配置比例 (例如 20.5 代表 20.5%)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   account      Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)

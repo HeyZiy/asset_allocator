@@ -54,6 +54,7 @@ export const ModelName = {
   Account: 'Account',
   PriceCache: 'PriceCache',
   Asset: 'Asset',
+  Holding: 'Holding',
   AssetAllocation: 'AssetAllocation',
   Transaction: 'Transaction'
 } as const
@@ -74,7 +75,9 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 export const AccountScalarFieldEnum = {
   id: 'id',
   name: 'name',
+  type: 'type',
   platform: 'platform',
+  cash: 'cash',
   targetAmount: 'targetAmount',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -100,6 +103,7 @@ export const AssetScalarFieldEnum = {
   symbol: 'symbol',
   type: 'type',
   currentPrice: 'currentPrice',
+  lastPriceUpdated: 'lastPriceUpdated',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -107,11 +111,24 @@ export const AssetScalarFieldEnum = {
 export type AssetScalarFieldEnum = (typeof AssetScalarFieldEnum)[keyof typeof AssetScalarFieldEnum]
 
 
+export const HoldingScalarFieldEnum = {
+  id: 'id',
+  accountId: 'accountId',
+  assetId: 'assetId',
+  shares: 'shares',
+  avgCost: 'avgCost',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type HoldingScalarFieldEnum = (typeof HoldingScalarFieldEnum)[keyof typeof HoldingScalarFieldEnum]
+
+
 export const AssetAllocationScalarFieldEnum = {
   id: 'id',
   accountId: 'accountId',
   assetId: 'assetId',
-  targetAmount: 'targetAmount',
+  targetPercent: 'targetPercent',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

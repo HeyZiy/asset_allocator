@@ -42,6 +42,7 @@ export type AssetMinAggregateOutputType = {
   symbol: string | null
   type: string | null
   currentPrice: number | null
+  lastPriceUpdated: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -52,6 +53,7 @@ export type AssetMaxAggregateOutputType = {
   symbol: string | null
   type: string | null
   currentPrice: number | null
+  lastPriceUpdated: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -62,6 +64,7 @@ export type AssetCountAggregateOutputType = {
   symbol: number
   type: number
   currentPrice: number
+  lastPriceUpdated: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -84,6 +87,7 @@ export type AssetMinAggregateInputType = {
   symbol?: true
   type?: true
   currentPrice?: true
+  lastPriceUpdated?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -94,6 +98,7 @@ export type AssetMaxAggregateInputType = {
   symbol?: true
   type?: true
   currentPrice?: true
+  lastPriceUpdated?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -104,6 +109,7 @@ export type AssetCountAggregateInputType = {
   symbol?: true
   type?: true
   currentPrice?: true
+  lastPriceUpdated?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -201,6 +207,7 @@ export type AssetGroupByOutputType = {
   symbol: string
   type: string
   currentPrice: number | null
+  lastPriceUpdated: Date | null
   createdAt: Date
   updatedAt: Date
   _count: AssetCountAggregateOutputType | null
@@ -234,10 +241,12 @@ export type AssetWhereInput = {
   symbol?: Prisma.StringFilter<"Asset"> | string
   type?: Prisma.StringFilter<"Asset"> | string
   currentPrice?: Prisma.FloatNullableFilter<"Asset"> | number | null
+  lastPriceUpdated?: Prisma.DateTimeNullableFilter<"Asset"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Asset"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Asset"> | Date | string
   allocations?: Prisma.AssetAllocationListRelationFilter
   transactions?: Prisma.TransactionListRelationFilter
+  holdings?: Prisma.HoldingListRelationFilter
 }
 
 export type AssetOrderByWithRelationInput = {
@@ -246,10 +255,12 @@ export type AssetOrderByWithRelationInput = {
   symbol?: Prisma.SortOrder
   type?: Prisma.SortOrder
   currentPrice?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastPriceUpdated?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   allocations?: Prisma.AssetAllocationOrderByRelationAggregateInput
   transactions?: Prisma.TransactionOrderByRelationAggregateInput
+  holdings?: Prisma.HoldingOrderByRelationAggregateInput
 }
 
 export type AssetWhereUniqueInput = Prisma.AtLeast<{
@@ -261,10 +272,12 @@ export type AssetWhereUniqueInput = Prisma.AtLeast<{
   name?: Prisma.StringFilter<"Asset"> | string
   type?: Prisma.StringFilter<"Asset"> | string
   currentPrice?: Prisma.FloatNullableFilter<"Asset"> | number | null
+  lastPriceUpdated?: Prisma.DateTimeNullableFilter<"Asset"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Asset"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Asset"> | Date | string
   allocations?: Prisma.AssetAllocationListRelationFilter
   transactions?: Prisma.TransactionListRelationFilter
+  holdings?: Prisma.HoldingListRelationFilter
 }, "id" | "symbol">
 
 export type AssetOrderByWithAggregationInput = {
@@ -273,6 +286,7 @@ export type AssetOrderByWithAggregationInput = {
   symbol?: Prisma.SortOrder
   type?: Prisma.SortOrder
   currentPrice?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastPriceUpdated?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.AssetCountOrderByAggregateInput
@@ -291,31 +305,36 @@ export type AssetScalarWhereWithAggregatesInput = {
   symbol?: Prisma.StringWithAggregatesFilter<"Asset"> | string
   type?: Prisma.StringWithAggregatesFilter<"Asset"> | string
   currentPrice?: Prisma.FloatNullableWithAggregatesFilter<"Asset"> | number | null
+  lastPriceUpdated?: Prisma.DateTimeNullableWithAggregatesFilter<"Asset"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Asset"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Asset"> | Date | string
 }
 
 export type AssetCreateInput = {
-  name: string
+  name?: string
   symbol: string
-  type: string
+  type?: string
   currentPrice?: number | null
+  lastPriceUpdated?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   allocations?: Prisma.AssetAllocationCreateNestedManyWithoutAssetInput
   transactions?: Prisma.TransactionCreateNestedManyWithoutAssetInput
+  holdings?: Prisma.HoldingCreateNestedManyWithoutAssetInput
 }
 
 export type AssetUncheckedCreateInput = {
   id?: number
-  name: string
+  name?: string
   symbol: string
-  type: string
+  type?: string
   currentPrice?: number | null
+  lastPriceUpdated?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   allocations?: Prisma.AssetAllocationUncheckedCreateNestedManyWithoutAssetInput
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutAssetInput
+  holdings?: Prisma.HoldingUncheckedCreateNestedManyWithoutAssetInput
 }
 
 export type AssetUpdateInput = {
@@ -323,10 +342,12 @@ export type AssetUpdateInput = {
   symbol?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   currentPrice?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  lastPriceUpdated?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   allocations?: Prisma.AssetAllocationUpdateManyWithoutAssetNestedInput
   transactions?: Prisma.TransactionUpdateManyWithoutAssetNestedInput
+  holdings?: Prisma.HoldingUpdateManyWithoutAssetNestedInput
 }
 
 export type AssetUncheckedUpdateInput = {
@@ -335,18 +356,21 @@ export type AssetUncheckedUpdateInput = {
   symbol?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   currentPrice?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  lastPriceUpdated?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   allocations?: Prisma.AssetAllocationUncheckedUpdateManyWithoutAssetNestedInput
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutAssetNestedInput
+  holdings?: Prisma.HoldingUncheckedUpdateManyWithoutAssetNestedInput
 }
 
 export type AssetCreateManyInput = {
   id?: number
-  name: string
+  name?: string
   symbol: string
-  type: string
+  type?: string
   currentPrice?: number | null
+  lastPriceUpdated?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -356,6 +380,7 @@ export type AssetUpdateManyMutationInput = {
   symbol?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   currentPrice?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  lastPriceUpdated?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -366,6 +391,7 @@ export type AssetUncheckedUpdateManyInput = {
   symbol?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   currentPrice?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  lastPriceUpdated?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -376,6 +402,7 @@ export type AssetCountOrderByAggregateInput = {
   symbol?: Prisma.SortOrder
   type?: Prisma.SortOrder
   currentPrice?: Prisma.SortOrder
+  lastPriceUpdated?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -391,6 +418,7 @@ export type AssetMaxOrderByAggregateInput = {
   symbol?: Prisma.SortOrder
   type?: Prisma.SortOrder
   currentPrice?: Prisma.SortOrder
+  lastPriceUpdated?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -401,6 +429,7 @@ export type AssetMinOrderByAggregateInput = {
   symbol?: Prisma.SortOrder
   type?: Prisma.SortOrder
   currentPrice?: Prisma.SortOrder
+  lastPriceUpdated?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -413,6 +442,24 @@ export type AssetSumOrderByAggregateInput = {
 export type AssetScalarRelationFilter = {
   is?: Prisma.AssetWhereInput
   isNot?: Prisma.AssetWhereInput
+}
+
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
+}
+
+export type AssetCreateNestedOneWithoutHoldingsInput = {
+  create?: Prisma.XOR<Prisma.AssetCreateWithoutHoldingsInput, Prisma.AssetUncheckedCreateWithoutHoldingsInput>
+  connectOrCreate?: Prisma.AssetCreateOrConnectWithoutHoldingsInput
+  connect?: Prisma.AssetWhereUniqueInput
+}
+
+export type AssetUpdateOneRequiredWithoutHoldingsNestedInput = {
+  create?: Prisma.XOR<Prisma.AssetCreateWithoutHoldingsInput, Prisma.AssetUncheckedCreateWithoutHoldingsInput>
+  connectOrCreate?: Prisma.AssetCreateOrConnectWithoutHoldingsInput
+  upsert?: Prisma.AssetUpsertWithoutHoldingsInput
+  connect?: Prisma.AssetWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AssetUpdateToOneWithWhereWithoutHoldingsInput, Prisma.AssetUpdateWithoutHoldingsInput>, Prisma.AssetUncheckedUpdateWithoutHoldingsInput>
 }
 
 export type AssetCreateNestedOneWithoutAllocationsInput = {
@@ -443,25 +490,95 @@ export type AssetUpdateOneRequiredWithoutTransactionsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.AssetUpdateToOneWithWhereWithoutTransactionsInput, Prisma.AssetUpdateWithoutTransactionsInput>, Prisma.AssetUncheckedUpdateWithoutTransactionsInput>
 }
 
-export type AssetCreateWithoutAllocationsInput = {
-  name: string
+export type AssetCreateWithoutHoldingsInput = {
+  name?: string
   symbol: string
-  type: string
+  type?: string
   currentPrice?: number | null
+  lastPriceUpdated?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  allocations?: Prisma.AssetAllocationCreateNestedManyWithoutAssetInput
+  transactions?: Prisma.TransactionCreateNestedManyWithoutAssetInput
+}
+
+export type AssetUncheckedCreateWithoutHoldingsInput = {
+  id?: number
+  name?: string
+  symbol: string
+  type?: string
+  currentPrice?: number | null
+  lastPriceUpdated?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  allocations?: Prisma.AssetAllocationUncheckedCreateNestedManyWithoutAssetInput
+  transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutAssetInput
+}
+
+export type AssetCreateOrConnectWithoutHoldingsInput = {
+  where: Prisma.AssetWhereUniqueInput
+  create: Prisma.XOR<Prisma.AssetCreateWithoutHoldingsInput, Prisma.AssetUncheckedCreateWithoutHoldingsInput>
+}
+
+export type AssetUpsertWithoutHoldingsInput = {
+  update: Prisma.XOR<Prisma.AssetUpdateWithoutHoldingsInput, Prisma.AssetUncheckedUpdateWithoutHoldingsInput>
+  create: Prisma.XOR<Prisma.AssetCreateWithoutHoldingsInput, Prisma.AssetUncheckedCreateWithoutHoldingsInput>
+  where?: Prisma.AssetWhereInput
+}
+
+export type AssetUpdateToOneWithWhereWithoutHoldingsInput = {
+  where?: Prisma.AssetWhereInput
+  data: Prisma.XOR<Prisma.AssetUpdateWithoutHoldingsInput, Prisma.AssetUncheckedUpdateWithoutHoldingsInput>
+}
+
+export type AssetUpdateWithoutHoldingsInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  symbol?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.StringFieldUpdateOperationsInput | string
+  currentPrice?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  lastPriceUpdated?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  allocations?: Prisma.AssetAllocationUpdateManyWithoutAssetNestedInput
+  transactions?: Prisma.TransactionUpdateManyWithoutAssetNestedInput
+}
+
+export type AssetUncheckedUpdateWithoutHoldingsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  symbol?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.StringFieldUpdateOperationsInput | string
+  currentPrice?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  lastPriceUpdated?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  allocations?: Prisma.AssetAllocationUncheckedUpdateManyWithoutAssetNestedInput
+  transactions?: Prisma.TransactionUncheckedUpdateManyWithoutAssetNestedInput
+}
+
+export type AssetCreateWithoutAllocationsInput = {
+  name?: string
+  symbol: string
+  type?: string
+  currentPrice?: number | null
+  lastPriceUpdated?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   transactions?: Prisma.TransactionCreateNestedManyWithoutAssetInput
+  holdings?: Prisma.HoldingCreateNestedManyWithoutAssetInput
 }
 
 export type AssetUncheckedCreateWithoutAllocationsInput = {
   id?: number
-  name: string
+  name?: string
   symbol: string
-  type: string
+  type?: string
   currentPrice?: number | null
+  lastPriceUpdated?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutAssetInput
+  holdings?: Prisma.HoldingUncheckedCreateNestedManyWithoutAssetInput
 }
 
 export type AssetCreateOrConnectWithoutAllocationsInput = {
@@ -485,9 +602,11 @@ export type AssetUpdateWithoutAllocationsInput = {
   symbol?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   currentPrice?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  lastPriceUpdated?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transactions?: Prisma.TransactionUpdateManyWithoutAssetNestedInput
+  holdings?: Prisma.HoldingUpdateManyWithoutAssetNestedInput
 }
 
 export type AssetUncheckedUpdateWithoutAllocationsInput = {
@@ -496,30 +615,36 @@ export type AssetUncheckedUpdateWithoutAllocationsInput = {
   symbol?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   currentPrice?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  lastPriceUpdated?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutAssetNestedInput
+  holdings?: Prisma.HoldingUncheckedUpdateManyWithoutAssetNestedInput
 }
 
 export type AssetCreateWithoutTransactionsInput = {
-  name: string
+  name?: string
   symbol: string
-  type: string
+  type?: string
   currentPrice?: number | null
+  lastPriceUpdated?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   allocations?: Prisma.AssetAllocationCreateNestedManyWithoutAssetInput
+  holdings?: Prisma.HoldingCreateNestedManyWithoutAssetInput
 }
 
 export type AssetUncheckedCreateWithoutTransactionsInput = {
   id?: number
-  name: string
+  name?: string
   symbol: string
-  type: string
+  type?: string
   currentPrice?: number | null
+  lastPriceUpdated?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   allocations?: Prisma.AssetAllocationUncheckedCreateNestedManyWithoutAssetInput
+  holdings?: Prisma.HoldingUncheckedCreateNestedManyWithoutAssetInput
 }
 
 export type AssetCreateOrConnectWithoutTransactionsInput = {
@@ -543,9 +668,11 @@ export type AssetUpdateWithoutTransactionsInput = {
   symbol?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   currentPrice?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  lastPriceUpdated?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   allocations?: Prisma.AssetAllocationUpdateManyWithoutAssetNestedInput
+  holdings?: Prisma.HoldingUpdateManyWithoutAssetNestedInput
 }
 
 export type AssetUncheckedUpdateWithoutTransactionsInput = {
@@ -554,9 +681,11 @@ export type AssetUncheckedUpdateWithoutTransactionsInput = {
   symbol?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   currentPrice?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  lastPriceUpdated?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   allocations?: Prisma.AssetAllocationUncheckedUpdateManyWithoutAssetNestedInput
+  holdings?: Prisma.HoldingUncheckedUpdateManyWithoutAssetNestedInput
 }
 
 
@@ -567,11 +696,13 @@ export type AssetUncheckedUpdateWithoutTransactionsInput = {
 export type AssetCountOutputType = {
   allocations: number
   transactions: number
+  holdings: number
 }
 
 export type AssetCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   allocations?: boolean | AssetCountOutputTypeCountAllocationsArgs
   transactions?: boolean | AssetCountOutputTypeCountTransactionsArgs
+  holdings?: boolean | AssetCountOutputTypeCountHoldingsArgs
 }
 
 /**
@@ -598,6 +729,13 @@ export type AssetCountOutputTypeCountTransactionsArgs<ExtArgs extends runtime.Ty
   where?: Prisma.TransactionWhereInput
 }
 
+/**
+ * AssetCountOutputType without action
+ */
+export type AssetCountOutputTypeCountHoldingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.HoldingWhereInput
+}
+
 
 export type AssetSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -605,10 +743,12 @@ export type AssetSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   symbol?: boolean
   type?: boolean
   currentPrice?: boolean
+  lastPriceUpdated?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   allocations?: boolean | Prisma.Asset$allocationsArgs<ExtArgs>
   transactions?: boolean | Prisma.Asset$transactionsArgs<ExtArgs>
+  holdings?: boolean | Prisma.Asset$holdingsArgs<ExtArgs>
   _count?: boolean | Prisma.AssetCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["asset"]>
 
@@ -618,6 +758,7 @@ export type AssetSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   symbol?: boolean
   type?: boolean
   currentPrice?: boolean
+  lastPriceUpdated?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["asset"]>
@@ -628,6 +769,7 @@ export type AssetSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   symbol?: boolean
   type?: boolean
   currentPrice?: boolean
+  lastPriceUpdated?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["asset"]>
@@ -638,14 +780,16 @@ export type AssetSelectScalar = {
   symbol?: boolean
   type?: boolean
   currentPrice?: boolean
+  lastPriceUpdated?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type AssetOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "symbol" | "type" | "currentPrice" | "createdAt" | "updatedAt", ExtArgs["result"]["asset"]>
+export type AssetOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "symbol" | "type" | "currentPrice" | "lastPriceUpdated" | "createdAt" | "updatedAt", ExtArgs["result"]["asset"]>
 export type AssetInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   allocations?: boolean | Prisma.Asset$allocationsArgs<ExtArgs>
   transactions?: boolean | Prisma.Asset$transactionsArgs<ExtArgs>
+  holdings?: boolean | Prisma.Asset$holdingsArgs<ExtArgs>
   _count?: boolean | Prisma.AssetCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type AssetIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -656,6 +800,7 @@ export type $AssetPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   objects: {
     allocations: Prisma.$AssetAllocationPayload<ExtArgs>[]
     transactions: Prisma.$TransactionPayload<ExtArgs>[]
+    holdings: Prisma.$HoldingPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -663,6 +808,7 @@ export type $AssetPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     symbol: string
     type: string
     currentPrice: number | null
+    lastPriceUpdated: Date | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["asset"]>
@@ -1061,6 +1207,7 @@ export interface Prisma__AssetClient<T, Null = never, ExtArgs extends runtime.Ty
   readonly [Symbol.toStringTag]: "PrismaPromise"
   allocations<T extends Prisma.Asset$allocationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Asset$allocationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AssetAllocationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   transactions<T extends Prisma.Asset$transactionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Asset$transactionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  holdings<T extends Prisma.Asset$holdingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Asset$holdingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$HoldingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1095,6 +1242,7 @@ export interface AssetFieldRefs {
   readonly symbol: Prisma.FieldRef<"Asset", 'String'>
   readonly type: Prisma.FieldRef<"Asset", 'String'>
   readonly currentPrice: Prisma.FieldRef<"Asset", 'Float'>
+  readonly lastPriceUpdated: Prisma.FieldRef<"Asset", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"Asset", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Asset", 'DateTime'>
 }
@@ -1528,6 +1676,30 @@ export type Asset$transactionsArgs<ExtArgs extends runtime.Types.Extensions.Inte
   take?: number
   skip?: number
   distinct?: Prisma.TransactionScalarFieldEnum | Prisma.TransactionScalarFieldEnum[]
+}
+
+/**
+ * Asset.holdings
+ */
+export type Asset$holdingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Holding
+   */
+  select?: Prisma.HoldingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Holding
+   */
+  omit?: Prisma.HoldingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.HoldingInclude<ExtArgs> | null
+  where?: Prisma.HoldingWhereInput
+  orderBy?: Prisma.HoldingOrderByWithRelationInput | Prisma.HoldingOrderByWithRelationInput[]
+  cursor?: Prisma.HoldingWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.HoldingScalarFieldEnum | Prisma.HoldingScalarFieldEnum[]
 }
 
 /**

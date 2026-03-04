@@ -30,21 +30,21 @@ export type AssetAllocationAvgAggregateOutputType = {
   id: number | null
   accountId: number | null
   assetId: number | null
-  targetAmount: number | null
+  targetPercent: number | null
 }
 
 export type AssetAllocationSumAggregateOutputType = {
   id: number | null
   accountId: number | null
   assetId: number | null
-  targetAmount: number | null
+  targetPercent: number | null
 }
 
 export type AssetAllocationMinAggregateOutputType = {
   id: number | null
   accountId: number | null
   assetId: number | null
-  targetAmount: number | null
+  targetPercent: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -53,7 +53,7 @@ export type AssetAllocationMaxAggregateOutputType = {
   id: number | null
   accountId: number | null
   assetId: number | null
-  targetAmount: number | null
+  targetPercent: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -62,7 +62,7 @@ export type AssetAllocationCountAggregateOutputType = {
   id: number
   accountId: number
   assetId: number
-  targetAmount: number
+  targetPercent: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -73,21 +73,21 @@ export type AssetAllocationAvgAggregateInputType = {
   id?: true
   accountId?: true
   assetId?: true
-  targetAmount?: true
+  targetPercent?: true
 }
 
 export type AssetAllocationSumAggregateInputType = {
   id?: true
   accountId?: true
   assetId?: true
-  targetAmount?: true
+  targetPercent?: true
 }
 
 export type AssetAllocationMinAggregateInputType = {
   id?: true
   accountId?: true
   assetId?: true
-  targetAmount?: true
+  targetPercent?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -96,7 +96,7 @@ export type AssetAllocationMaxAggregateInputType = {
   id?: true
   accountId?: true
   assetId?: true
-  targetAmount?: true
+  targetPercent?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -105,7 +105,7 @@ export type AssetAllocationCountAggregateInputType = {
   id?: true
   accountId?: true
   assetId?: true
-  targetAmount?: true
+  targetPercent?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -201,7 +201,7 @@ export type AssetAllocationGroupByOutputType = {
   id: number
   accountId: number
   assetId: number
-  targetAmount: number
+  targetPercent: number
   createdAt: Date
   updatedAt: Date
   _count: AssetAllocationCountAggregateOutputType | null
@@ -233,7 +233,7 @@ export type AssetAllocationWhereInput = {
   id?: Prisma.IntFilter<"AssetAllocation"> | number
   accountId?: Prisma.IntFilter<"AssetAllocation"> | number
   assetId?: Prisma.IntFilter<"AssetAllocation"> | number
-  targetAmount?: Prisma.FloatFilter<"AssetAllocation"> | number
+  targetPercent?: Prisma.FloatFilter<"AssetAllocation"> | number
   createdAt?: Prisma.DateTimeFilter<"AssetAllocation"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"AssetAllocation"> | Date | string
   account?: Prisma.XOR<Prisma.AccountScalarRelationFilter, Prisma.AccountWhereInput>
@@ -244,7 +244,7 @@ export type AssetAllocationOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   accountId?: Prisma.SortOrder
   assetId?: Prisma.SortOrder
-  targetAmount?: Prisma.SortOrder
+  targetPercent?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   account?: Prisma.AccountOrderByWithRelationInput
@@ -258,7 +258,7 @@ export type AssetAllocationWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.AssetAllocationWhereInput | Prisma.AssetAllocationWhereInput[]
   accountId?: Prisma.IntFilter<"AssetAllocation"> | number
   assetId?: Prisma.IntFilter<"AssetAllocation"> | number
-  targetAmount?: Prisma.FloatFilter<"AssetAllocation"> | number
+  targetPercent?: Prisma.FloatFilter<"AssetAllocation"> | number
   createdAt?: Prisma.DateTimeFilter<"AssetAllocation"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"AssetAllocation"> | Date | string
   account?: Prisma.XOR<Prisma.AccountScalarRelationFilter, Prisma.AccountWhereInput>
@@ -269,7 +269,7 @@ export type AssetAllocationOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   accountId?: Prisma.SortOrder
   assetId?: Prisma.SortOrder
-  targetAmount?: Prisma.SortOrder
+  targetPercent?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.AssetAllocationCountOrderByAggregateInput
@@ -286,13 +286,13 @@ export type AssetAllocationScalarWhereWithAggregatesInput = {
   id?: Prisma.IntWithAggregatesFilter<"AssetAllocation"> | number
   accountId?: Prisma.IntWithAggregatesFilter<"AssetAllocation"> | number
   assetId?: Prisma.IntWithAggregatesFilter<"AssetAllocation"> | number
-  targetAmount?: Prisma.FloatWithAggregatesFilter<"AssetAllocation"> | number
+  targetPercent?: Prisma.FloatWithAggregatesFilter<"AssetAllocation"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"AssetAllocation"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"AssetAllocation"> | Date | string
 }
 
 export type AssetAllocationCreateInput = {
-  targetAmount: number
+  targetPercent?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   account: Prisma.AccountCreateNestedOneWithoutAllocationsInput
@@ -303,13 +303,13 @@ export type AssetAllocationUncheckedCreateInput = {
   id?: number
   accountId: number
   assetId: number
-  targetAmount: number
+  targetPercent?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type AssetAllocationUpdateInput = {
-  targetAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  targetPercent?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   account?: Prisma.AccountUpdateOneRequiredWithoutAllocationsNestedInput
@@ -320,7 +320,7 @@ export type AssetAllocationUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   accountId?: Prisma.IntFieldUpdateOperationsInput | number
   assetId?: Prisma.IntFieldUpdateOperationsInput | number
-  targetAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  targetPercent?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -329,13 +329,13 @@ export type AssetAllocationCreateManyInput = {
   id?: number
   accountId: number
   assetId: number
-  targetAmount: number
+  targetPercent?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type AssetAllocationUpdateManyMutationInput = {
-  targetAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  targetPercent?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -344,7 +344,7 @@ export type AssetAllocationUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   accountId?: Prisma.IntFieldUpdateOperationsInput | number
   assetId?: Prisma.IntFieldUpdateOperationsInput | number
-  targetAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  targetPercent?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -363,7 +363,7 @@ export type AssetAllocationCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   accountId?: Prisma.SortOrder
   assetId?: Prisma.SortOrder
-  targetAmount?: Prisma.SortOrder
+  targetPercent?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -372,14 +372,14 @@ export type AssetAllocationAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   accountId?: Prisma.SortOrder
   assetId?: Prisma.SortOrder
-  targetAmount?: Prisma.SortOrder
+  targetPercent?: Prisma.SortOrder
 }
 
 export type AssetAllocationMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   accountId?: Prisma.SortOrder
   assetId?: Prisma.SortOrder
-  targetAmount?: Prisma.SortOrder
+  targetPercent?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -388,7 +388,7 @@ export type AssetAllocationMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   accountId?: Prisma.SortOrder
   assetId?: Prisma.SortOrder
-  targetAmount?: Prisma.SortOrder
+  targetPercent?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -397,7 +397,7 @@ export type AssetAllocationSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   accountId?: Prisma.SortOrder
   assetId?: Prisma.SortOrder
-  targetAmount?: Prisma.SortOrder
+  targetPercent?: Prisma.SortOrder
 }
 
 export type AssetAllocationCreateNestedManyWithoutAccountInput = {
@@ -485,7 +485,7 @@ export type AssetAllocationUncheckedUpdateManyWithoutAssetNestedInput = {
 }
 
 export type AssetAllocationCreateWithoutAccountInput = {
-  targetAmount: number
+  targetPercent?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   asset: Prisma.AssetCreateNestedOneWithoutAllocationsInput
@@ -494,7 +494,7 @@ export type AssetAllocationCreateWithoutAccountInput = {
 export type AssetAllocationUncheckedCreateWithoutAccountInput = {
   id?: number
   assetId: number
-  targetAmount: number
+  targetPercent?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -531,13 +531,13 @@ export type AssetAllocationScalarWhereInput = {
   id?: Prisma.IntFilter<"AssetAllocation"> | number
   accountId?: Prisma.IntFilter<"AssetAllocation"> | number
   assetId?: Prisma.IntFilter<"AssetAllocation"> | number
-  targetAmount?: Prisma.FloatFilter<"AssetAllocation"> | number
+  targetPercent?: Prisma.FloatFilter<"AssetAllocation"> | number
   createdAt?: Prisma.DateTimeFilter<"AssetAllocation"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"AssetAllocation"> | Date | string
 }
 
 export type AssetAllocationCreateWithoutAssetInput = {
-  targetAmount: number
+  targetPercent?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   account: Prisma.AccountCreateNestedOneWithoutAllocationsInput
@@ -546,7 +546,7 @@ export type AssetAllocationCreateWithoutAssetInput = {
 export type AssetAllocationUncheckedCreateWithoutAssetInput = {
   id?: number
   accountId: number
-  targetAmount: number
+  targetPercent?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -579,13 +579,13 @@ export type AssetAllocationUpdateManyWithWhereWithoutAssetInput = {
 export type AssetAllocationCreateManyAccountInput = {
   id?: number
   assetId: number
-  targetAmount: number
+  targetPercent?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type AssetAllocationUpdateWithoutAccountInput = {
-  targetAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  targetPercent?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   asset?: Prisma.AssetUpdateOneRequiredWithoutAllocationsNestedInput
@@ -594,7 +594,7 @@ export type AssetAllocationUpdateWithoutAccountInput = {
 export type AssetAllocationUncheckedUpdateWithoutAccountInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   assetId?: Prisma.IntFieldUpdateOperationsInput | number
-  targetAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  targetPercent?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -602,7 +602,7 @@ export type AssetAllocationUncheckedUpdateWithoutAccountInput = {
 export type AssetAllocationUncheckedUpdateManyWithoutAccountInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   assetId?: Prisma.IntFieldUpdateOperationsInput | number
-  targetAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  targetPercent?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -610,13 +610,13 @@ export type AssetAllocationUncheckedUpdateManyWithoutAccountInput = {
 export type AssetAllocationCreateManyAssetInput = {
   id?: number
   accountId: number
-  targetAmount: number
+  targetPercent?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type AssetAllocationUpdateWithoutAssetInput = {
-  targetAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  targetPercent?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   account?: Prisma.AccountUpdateOneRequiredWithoutAllocationsNestedInput
@@ -625,7 +625,7 @@ export type AssetAllocationUpdateWithoutAssetInput = {
 export type AssetAllocationUncheckedUpdateWithoutAssetInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   accountId?: Prisma.IntFieldUpdateOperationsInput | number
-  targetAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  targetPercent?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -633,7 +633,7 @@ export type AssetAllocationUncheckedUpdateWithoutAssetInput = {
 export type AssetAllocationUncheckedUpdateManyWithoutAssetInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   accountId?: Prisma.IntFieldUpdateOperationsInput | number
-  targetAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  targetPercent?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -644,7 +644,7 @@ export type AssetAllocationSelect<ExtArgs extends runtime.Types.Extensions.Inter
   id?: boolean
   accountId?: boolean
   assetId?: boolean
-  targetAmount?: boolean
+  targetPercent?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   account?: boolean | Prisma.AccountDefaultArgs<ExtArgs>
@@ -655,7 +655,7 @@ export type AssetAllocationSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   id?: boolean
   accountId?: boolean
   assetId?: boolean
-  targetAmount?: boolean
+  targetPercent?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   account?: boolean | Prisma.AccountDefaultArgs<ExtArgs>
@@ -666,7 +666,7 @@ export type AssetAllocationSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   id?: boolean
   accountId?: boolean
   assetId?: boolean
-  targetAmount?: boolean
+  targetPercent?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   account?: boolean | Prisma.AccountDefaultArgs<ExtArgs>
@@ -677,12 +677,12 @@ export type AssetAllocationSelectScalar = {
   id?: boolean
   accountId?: boolean
   assetId?: boolean
-  targetAmount?: boolean
+  targetPercent?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type AssetAllocationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "accountId" | "assetId" | "targetAmount" | "createdAt" | "updatedAt", ExtArgs["result"]["assetAllocation"]>
+export type AssetAllocationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "accountId" | "assetId" | "targetPercent" | "createdAt" | "updatedAt", ExtArgs["result"]["assetAllocation"]>
 export type AssetAllocationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   account?: boolean | Prisma.AccountDefaultArgs<ExtArgs>
   asset?: boolean | Prisma.AssetDefaultArgs<ExtArgs>
@@ -706,7 +706,7 @@ export type $AssetAllocationPayload<ExtArgs extends runtime.Types.Extensions.Int
     id: number
     accountId: number
     assetId: number
-    targetAmount: number
+    targetPercent: number
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["assetAllocation"]>
@@ -1137,7 +1137,7 @@ export interface AssetAllocationFieldRefs {
   readonly id: Prisma.FieldRef<"AssetAllocation", 'Int'>
   readonly accountId: Prisma.FieldRef<"AssetAllocation", 'Int'>
   readonly assetId: Prisma.FieldRef<"AssetAllocation", 'Int'>
-  readonly targetAmount: Prisma.FieldRef<"AssetAllocation", 'Float'>
+  readonly targetPercent: Prisma.FieldRef<"AssetAllocation", 'Float'>
   readonly createdAt: Prisma.FieldRef<"AssetAllocation", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"AssetAllocation", 'DateTime'>
 }

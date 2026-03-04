@@ -26,35 +26,123 @@ export async function POST(request: NextRequest) {
     let amount = data.amount;
     const date = new Date(data.date);
     const shares = data.shares ?? 0;
+    const type = data.type; // 'buy' or 'sell'
 
-    if ((price == null || price === 0) && shares > 0) {
-      const asset = await prisma.asset.findUnique({ where: { id: data.assetId } });
-      if (asset?.symbol) {
-        const fetched = await getPriceBySymbolDate(asset.symbol, date);
-        if (fetched != null) {
-          price = fetched;
-          amount = Math.round(shares * price * 100) / 100;
-        }
+    // 1. Resolve Asset ID (Create if not exists)
+    let assetId = data.assetId;
+    let assetSymbol = '';
+    
+    if (!assetId && data.symbol) {
+      const existing = await prisma.asset.findUnique({ where: { symbol: data.symbol } });
+      if (existing) {
+        assetId = existing.id;
+        assetSymbol = existing.symbol;
+      } else {
+        const manualName = data.name || data.symbol;
+        const newAsset = await prisma.asset.create({
+          data: {
+            symbol: data.symbol,
+            name: manualName,
+            type: data.assetType || 'stock',
+          }
+        });
+        assetId = newAsset.id;
+        assetSymbol = newAsset.symbol;
       }
-    }
-    if (price == null || price === 0 || amount == null || amount === 0) {
-      return NextResponse.json({ error: '请填写价格和金额，或填写份额+日期并选择支持行情接口的资产（ETF 510xxx/159xxx 等）' }, { status: 400 });
+    } else if (assetId) {
+      const existing = await prisma.asset.findUnique({ where: { id: assetId } });
+      if (existing) assetSymbol = existing.symbol;
     }
 
-    const transaction = await prisma.transaction.create({
-      data: {
-        accountId: data.accountId,
-        assetId: data.assetId,
-        type: data.type,
-        amount,
-        price,
-        shares,
-        date,
-      },
-      include: { asset: true, account: true },
+    if (!assetId) {
+       return NextResponse.json({ error: '必须提供 assetId 或 symbol' }, { status: 400 });
+    }
+
+    // 2. Fetch Price if missing
+    if ((price == null || price === 0) && shares > 0 && assetSymbol) {
+       const fetched = await getPriceBySymbolDate(assetSymbol, date);
+       if (fetched != null) {
+         price = fetched;
+         amount = Math.round(shares * price * 100) / 100;
+       }
+    }
+
+    if (price == null || price === 0 || (amount == null || amount === 0) && shares > 0) {
+       // If still no price, try current price from asset if date is today?
+       // For now return error
+       return NextResponse.json({ error: '请填写价格，或确保该资产支持自动获取行情' }, { status: 400 });
+    }
+    
+    // Recalculate amount if undefined but price & shares exist
+    if (!amount && price && shares) {
+        amount = Math.round(shares * price * 100) / 100;
+    }
+
+    // 3. Execute Transaction & Update State (Account Cash + Holding)
+    const result = await prisma.$transaction(async (tx) => {
+      // A. Create Transaction Record
+      const transaction = await tx.transaction.create({
+        data: {
+          accountId: data.accountId,
+          assetId: assetId,
+          type,
+          amount,
+          price,
+          shares,
+          date,
+        },
+        include: { asset: true, account: true },
+      });
+
+      // B. Update Account Cash
+      const cashChange = type === 'buy' ? -amount : amount;
+      await tx.account.update({
+        where: { id: data.accountId },
+        data: { cash: { increment: cashChange } },
+      });
+
+      // C. Update Holding
+      const existingHolding = await tx.holding.findUnique({
+        where: { accountId_assetId: { accountId: data.accountId, assetId: assetId } },
+      });
+
+      if (existingHolding) {
+        let newShares = existingHolding.shares;
+        let newCost = existingHolding.avgCost;
+        
+        if (type === 'buy') {
+           const totalCost = (existingHolding.shares * existingHolding.avgCost) + amount;
+           newShares += shares;
+           newCost = newShares > 0 ? totalCost / newShares : 0;
+        } else {
+           // Sell: shares decrease, avgCost stays same (FIFO/Weighted assumption)
+           newShares -= shares;
+           // If fully sold, cost is 0? Or keep last known cost? Usually cost basis is historical.
+           if (newShares <= 0.0001) newShares = 0; // Floating point safety
+        }
+
+        await tx.holding.update({
+          where: { id: existingHolding.id },
+          data: { shares: newShares, avgCost: newCost },
+        });
+      } else if (type === 'buy') {
+        // Create new holding
+        await tx.holding.create({
+          data: {
+            accountId: data.accountId,
+            assetId: assetId,
+            shares: shares,
+            avgCost: price, // Initial cost is price
+          },
+        });
+      }
+
+      return transaction;
     });
-    return NextResponse.json(transaction, { status: 201 });
+
+    return NextResponse.json(result, { status: 201 });
   } catch (error) {
+    console.error(error);
     return NextResponse.json({ error: 'Failed to create transaction' }, { status: 500 });
   }
 }

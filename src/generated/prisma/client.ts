@@ -57,6 +57,11 @@ export type PriceCache = Prisma.PriceCacheModel
  */
 export type Asset = Prisma.AssetModel
 /**
+ * Model Holding
+ * 
+ */
+export type Holding = Prisma.HoldingModel
+/**
  * Model AssetAllocation
  * 
  */

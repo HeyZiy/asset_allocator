@@ -18,28 +18,41 @@ async function fetchFromEastMoney(secid: string, dateStr: string): Promise<numbe
   const begStr = beg.toISOString().slice(0, 10).replace(/-/g, '');
   const endStr = endDate.toISOString().slice(0, 10).replace(/-/g, '');
   const url = `http://push2his.eastmoney.com/api/qt/stock/kline/get?fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56&klt=101&fqt=1&secid=${secid}&beg=${begStr}&end=${endStr}`;
-  const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
-  const json = await res.json();
-  const klines: string[] = json?.data?.klines ?? [];
-  if (klines.length === 0) return null;
-  const line = klines.find((k) => k.startsWith(dateStr));
-  if (line) {
-    const parts = line.split(',');
-    return parseFloat(parts[2]) || null;
-  }
-  const targetTime = new Date(dateStr).getTime();
-  let nearest = klines[0];
-  let minDiff = Infinity;
-  for (const k of klines) {
-    const kDate = k.split(',')[0];
-    const diff = Math.abs(new Date(kDate).getTime() - targetTime);
-    if (diff < minDiff) {
-      minDiff = diff;
-      nearest = k;
+  
+  try {
+    const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+    if (!res.ok) return null;
+    const json = await res.json();
+    const klines: string[] = json?.data?.klines ?? [];
+    if (klines.length === 0) return null;
+    
+    // Find exact date match or closest
+    const targetTime = new Date(dateStr).getTime();
+    let bestMatch = klines[0];
+    let minDiff = Infinity;
+    
+    for (const k of klines) {
+        const kDateStr = k.split(',')[0];
+        const kTime = new Date(kDateStr).getTime();
+        const diff = Math.abs(kTime - targetTime);
+        // Prefer exact match
+        if (diff === 0) {
+            bestMatch = k;
+            minDiff = 0;
+            break;
+        }
+        if (diff < minDiff) {
+            minDiff = diff;
+            bestMatch = k;
+        }
     }
+    
+    const parts = bestMatch.split(',');
+    return parseFloat(parts[2]) || null; // f53 is close price? check fields. usually parts[2] is close in kline
+  } catch (e) {
+    console.error('Fetch error:', e);
+    return null;
   }
-  const parts = nearest.split(',');
-  return parseFloat(parts[2]) || null;
 }
 
 export async function getPriceBySymbolDate(symbol: string, date: Date): Promise<number | null> {
@@ -59,3 +72,28 @@ export async function getPriceBySymbolDate(symbol: string, date: Date): Promise<
   });
   return price;
 }
+
+export async function updateAssetCurrentPrice(symbol: string): Promise<number | null> {
+    const secid = getSecid(symbol);
+    if (!secid) return null;
+    
+    // Use EastMoney realtime quote or kline ending today
+    // kline is safer for consistent history, but for realtime we might want real quote.
+    // For now, reuse fetchFromEastMoney with today's date.
+    const today = new Date();
+    const dateStr = today.toISOString().slice(0, 10);
+    const price = await fetchFromEastMoney(secid, dateStr);
+    
+    if (price !== null) {
+        // Update Asset table
+        await prisma.asset.update({
+            where: { symbol },
+            data: { 
+                currentPrice: price, 
+                lastPriceUpdated: new Date() 
+            }
+        });
+    }
+    return price;
+}
+

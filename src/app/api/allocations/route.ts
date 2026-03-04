@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
       data: {
         accountId: data.accountId,
         assetId: data.assetId,
-        targetAmount: data.targetAmount,
+        targetPercent: data.targetPercent, // Updated to use Percent
       },
       include: { asset: true, account: true },
     });

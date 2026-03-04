@@ -28,18 +28,22 @@ export type AggregateAccount = {
 
 export type AccountAvgAggregateOutputType = {
   id: number | null
+  cash: number | null
   targetAmount: number | null
 }
 
 export type AccountSumAggregateOutputType = {
   id: number | null
+  cash: number | null
   targetAmount: number | null
 }
 
 export type AccountMinAggregateOutputType = {
   id: number | null
   name: string | null
+  type: string | null
   platform: string | null
+  cash: number | null
   targetAmount: number | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -48,7 +52,9 @@ export type AccountMinAggregateOutputType = {
 export type AccountMaxAggregateOutputType = {
   id: number | null
   name: string | null
+  type: string | null
   platform: string | null
+  cash: number | null
   targetAmount: number | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -57,7 +63,9 @@ export type AccountMaxAggregateOutputType = {
 export type AccountCountAggregateOutputType = {
   id: number
   name: number
+  type: number
   platform: number
+  cash: number
   targetAmount: number
   createdAt: number
   updatedAt: number
@@ -67,18 +75,22 @@ export type AccountCountAggregateOutputType = {
 
 export type AccountAvgAggregateInputType = {
   id?: true
+  cash?: true
   targetAmount?: true
 }
 
 export type AccountSumAggregateInputType = {
   id?: true
+  cash?: true
   targetAmount?: true
 }
 
 export type AccountMinAggregateInputType = {
   id?: true
   name?: true
+  type?: true
   platform?: true
+  cash?: true
   targetAmount?: true
   createdAt?: true
   updatedAt?: true
@@ -87,7 +99,9 @@ export type AccountMinAggregateInputType = {
 export type AccountMaxAggregateInputType = {
   id?: true
   name?: true
+  type?: true
   platform?: true
+  cash?: true
   targetAmount?: true
   createdAt?: true
   updatedAt?: true
@@ -96,7 +110,9 @@ export type AccountMaxAggregateInputType = {
 export type AccountCountAggregateInputType = {
   id?: true
   name?: true
+  type?: true
   platform?: true
+  cash?: true
   targetAmount?: true
   createdAt?: true
   updatedAt?: true
@@ -192,7 +208,9 @@ export type AccountGroupByArgs<ExtArgs extends runtime.Types.Extensions.Internal
 export type AccountGroupByOutputType = {
   id: number
   name: string
+  type: string | null
   platform: string | null
+  cash: number
   targetAmount: number | null
   createdAt: Date
   updatedAt: Date
@@ -224,23 +242,29 @@ export type AccountWhereInput = {
   NOT?: Prisma.AccountWhereInput | Prisma.AccountWhereInput[]
   id?: Prisma.IntFilter<"Account"> | number
   name?: Prisma.StringFilter<"Account"> | string
+  type?: Prisma.StringNullableFilter<"Account"> | string | null
   platform?: Prisma.StringNullableFilter<"Account"> | string | null
+  cash?: Prisma.FloatFilter<"Account"> | number
   targetAmount?: Prisma.FloatNullableFilter<"Account"> | number | null
   createdAt?: Prisma.DateTimeFilter<"Account"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Account"> | Date | string
   allocations?: Prisma.AssetAllocationListRelationFilter
   transactions?: Prisma.TransactionListRelationFilter
+  holdings?: Prisma.HoldingListRelationFilter
 }
 
 export type AccountOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  type?: Prisma.SortOrderInput | Prisma.SortOrder
   platform?: Prisma.SortOrderInput | Prisma.SortOrder
+  cash?: Prisma.SortOrder
   targetAmount?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   allocations?: Prisma.AssetAllocationOrderByRelationAggregateInput
   transactions?: Prisma.TransactionOrderByRelationAggregateInput
+  holdings?: Prisma.HoldingOrderByRelationAggregateInput
 }
 
 export type AccountWhereUniqueInput = Prisma.AtLeast<{
@@ -249,18 +273,23 @@ export type AccountWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.AccountWhereInput[]
   NOT?: Prisma.AccountWhereInput | Prisma.AccountWhereInput[]
   name?: Prisma.StringFilter<"Account"> | string
+  type?: Prisma.StringNullableFilter<"Account"> | string | null
   platform?: Prisma.StringNullableFilter<"Account"> | string | null
+  cash?: Prisma.FloatFilter<"Account"> | number
   targetAmount?: Prisma.FloatNullableFilter<"Account"> | number | null
   createdAt?: Prisma.DateTimeFilter<"Account"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Account"> | Date | string
   allocations?: Prisma.AssetAllocationListRelationFilter
   transactions?: Prisma.TransactionListRelationFilter
+  holdings?: Prisma.HoldingListRelationFilter
 }, "id">
 
 export type AccountOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  type?: Prisma.SortOrderInput | Prisma.SortOrder
   platform?: Prisma.SortOrderInput | Prisma.SortOrder
+  cash?: Prisma.SortOrder
   targetAmount?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -277,7 +306,9 @@ export type AccountScalarWhereWithAggregatesInput = {
   NOT?: Prisma.AccountScalarWhereWithAggregatesInput | Prisma.AccountScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"Account"> | number
   name?: Prisma.StringWithAggregatesFilter<"Account"> | string
+  type?: Prisma.StringNullableWithAggregatesFilter<"Account"> | string | null
   platform?: Prisma.StringNullableWithAggregatesFilter<"Account"> | string | null
+  cash?: Prisma.FloatWithAggregatesFilter<"Account"> | number
   targetAmount?: Prisma.FloatNullableWithAggregatesFilter<"Account"> | number | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Account"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Account"> | Date | string
@@ -285,50 +316,64 @@ export type AccountScalarWhereWithAggregatesInput = {
 
 export type AccountCreateInput = {
   name: string
+  type?: string | null
   platform?: string | null
+  cash?: number
   targetAmount?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   allocations?: Prisma.AssetAllocationCreateNestedManyWithoutAccountInput
   transactions?: Prisma.TransactionCreateNestedManyWithoutAccountInput
+  holdings?: Prisma.HoldingCreateNestedManyWithoutAccountInput
 }
 
 export type AccountUncheckedCreateInput = {
   id?: number
   name: string
+  type?: string | null
   platform?: string | null
+  cash?: number
   targetAmount?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   allocations?: Prisma.AssetAllocationUncheckedCreateNestedManyWithoutAccountInput
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutAccountInput
+  holdings?: Prisma.HoldingUncheckedCreateNestedManyWithoutAccountInput
 }
 
 export type AccountUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   platform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cash?: Prisma.FloatFieldUpdateOperationsInput | number
   targetAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   allocations?: Prisma.AssetAllocationUpdateManyWithoutAccountNestedInput
   transactions?: Prisma.TransactionUpdateManyWithoutAccountNestedInput
+  holdings?: Prisma.HoldingUpdateManyWithoutAccountNestedInput
 }
 
 export type AccountUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   platform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cash?: Prisma.FloatFieldUpdateOperationsInput | number
   targetAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   allocations?: Prisma.AssetAllocationUncheckedUpdateManyWithoutAccountNestedInput
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutAccountNestedInput
+  holdings?: Prisma.HoldingUncheckedUpdateManyWithoutAccountNestedInput
 }
 
 export type AccountCreateManyInput = {
   id?: number
   name: string
+  type?: string | null
   platform?: string | null
+  cash?: number
   targetAmount?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -336,7 +381,9 @@ export type AccountCreateManyInput = {
 
 export type AccountUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   platform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cash?: Prisma.FloatFieldUpdateOperationsInput | number
   targetAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -345,7 +392,9 @@ export type AccountUpdateManyMutationInput = {
 export type AccountUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   platform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cash?: Prisma.FloatFieldUpdateOperationsInput | number
   targetAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -354,7 +403,9 @@ export type AccountUncheckedUpdateManyInput = {
 export type AccountCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   platform?: Prisma.SortOrder
+  cash?: Prisma.SortOrder
   targetAmount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -362,13 +413,16 @@ export type AccountCountOrderByAggregateInput = {
 
 export type AccountAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  cash?: Prisma.SortOrder
   targetAmount?: Prisma.SortOrder
 }
 
 export type AccountMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   platform?: Prisma.SortOrder
+  cash?: Prisma.SortOrder
   targetAmount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -377,7 +431,9 @@ export type AccountMaxOrderByAggregateInput = {
 export type AccountMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   platform?: Prisma.SortOrder
+  cash?: Prisma.SortOrder
   targetAmount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -385,6 +441,7 @@ export type AccountMinOrderByAggregateInput = {
 
 export type AccountSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  cash?: Prisma.SortOrder
   targetAmount?: Prisma.SortOrder
 }
 
@@ -399,6 +456,14 @@ export type StringFieldUpdateOperationsInput = {
 
 export type NullableStringFieldUpdateOperationsInput = {
   set?: string | null
+}
+
+export type FloatFieldUpdateOperationsInput = {
+  set?: number
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
 }
 
 export type NullableFloatFieldUpdateOperationsInput = {
@@ -419,6 +484,20 @@ export type IntFieldUpdateOperationsInput = {
   decrement?: number
   multiply?: number
   divide?: number
+}
+
+export type AccountCreateNestedOneWithoutHoldingsInput = {
+  create?: Prisma.XOR<Prisma.AccountCreateWithoutHoldingsInput, Prisma.AccountUncheckedCreateWithoutHoldingsInput>
+  connectOrCreate?: Prisma.AccountCreateOrConnectWithoutHoldingsInput
+  connect?: Prisma.AccountWhereUniqueInput
+}
+
+export type AccountUpdateOneRequiredWithoutHoldingsNestedInput = {
+  create?: Prisma.XOR<Prisma.AccountCreateWithoutHoldingsInput, Prisma.AccountUncheckedCreateWithoutHoldingsInput>
+  connectOrCreate?: Prisma.AccountCreateOrConnectWithoutHoldingsInput
+  upsert?: Prisma.AccountUpsertWithoutHoldingsInput
+  connect?: Prisma.AccountWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AccountUpdateToOneWithWhereWithoutHoldingsInput, Prisma.AccountUpdateWithoutHoldingsInput>, Prisma.AccountUncheckedUpdateWithoutHoldingsInput>
 }
 
 export type AccountCreateNestedOneWithoutAllocationsInput = {
@@ -449,23 +528,95 @@ export type AccountUpdateOneRequiredWithoutTransactionsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.AccountUpdateToOneWithWhereWithoutTransactionsInput, Prisma.AccountUpdateWithoutTransactionsInput>, Prisma.AccountUncheckedUpdateWithoutTransactionsInput>
 }
 
+export type AccountCreateWithoutHoldingsInput = {
+  name: string
+  type?: string | null
+  platform?: string | null
+  cash?: number
+  targetAmount?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  allocations?: Prisma.AssetAllocationCreateNestedManyWithoutAccountInput
+  transactions?: Prisma.TransactionCreateNestedManyWithoutAccountInput
+}
+
+export type AccountUncheckedCreateWithoutHoldingsInput = {
+  id?: number
+  name: string
+  type?: string | null
+  platform?: string | null
+  cash?: number
+  targetAmount?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  allocations?: Prisma.AssetAllocationUncheckedCreateNestedManyWithoutAccountInput
+  transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutAccountInput
+}
+
+export type AccountCreateOrConnectWithoutHoldingsInput = {
+  where: Prisma.AccountWhereUniqueInput
+  create: Prisma.XOR<Prisma.AccountCreateWithoutHoldingsInput, Prisma.AccountUncheckedCreateWithoutHoldingsInput>
+}
+
+export type AccountUpsertWithoutHoldingsInput = {
+  update: Prisma.XOR<Prisma.AccountUpdateWithoutHoldingsInput, Prisma.AccountUncheckedUpdateWithoutHoldingsInput>
+  create: Prisma.XOR<Prisma.AccountCreateWithoutHoldingsInput, Prisma.AccountUncheckedCreateWithoutHoldingsInput>
+  where?: Prisma.AccountWhereInput
+}
+
+export type AccountUpdateToOneWithWhereWithoutHoldingsInput = {
+  where?: Prisma.AccountWhereInput
+  data: Prisma.XOR<Prisma.AccountUpdateWithoutHoldingsInput, Prisma.AccountUncheckedUpdateWithoutHoldingsInput>
+}
+
+export type AccountUpdateWithoutHoldingsInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  platform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cash?: Prisma.FloatFieldUpdateOperationsInput | number
+  targetAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  allocations?: Prisma.AssetAllocationUpdateManyWithoutAccountNestedInput
+  transactions?: Prisma.TransactionUpdateManyWithoutAccountNestedInput
+}
+
+export type AccountUncheckedUpdateWithoutHoldingsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  platform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cash?: Prisma.FloatFieldUpdateOperationsInput | number
+  targetAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  allocations?: Prisma.AssetAllocationUncheckedUpdateManyWithoutAccountNestedInput
+  transactions?: Prisma.TransactionUncheckedUpdateManyWithoutAccountNestedInput
+}
+
 export type AccountCreateWithoutAllocationsInput = {
   name: string
+  type?: string | null
   platform?: string | null
+  cash?: number
   targetAmount?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   transactions?: Prisma.TransactionCreateNestedManyWithoutAccountInput
+  holdings?: Prisma.HoldingCreateNestedManyWithoutAccountInput
 }
 
 export type AccountUncheckedCreateWithoutAllocationsInput = {
   id?: number
   name: string
+  type?: string | null
   platform?: string | null
+  cash?: number
   targetAmount?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutAccountInput
+  holdings?: Prisma.HoldingUncheckedCreateNestedManyWithoutAccountInput
 }
 
 export type AccountCreateOrConnectWithoutAllocationsInput = {
@@ -486,40 +637,52 @@ export type AccountUpdateToOneWithWhereWithoutAllocationsInput = {
 
 export type AccountUpdateWithoutAllocationsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   platform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cash?: Prisma.FloatFieldUpdateOperationsInput | number
   targetAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transactions?: Prisma.TransactionUpdateManyWithoutAccountNestedInput
+  holdings?: Prisma.HoldingUpdateManyWithoutAccountNestedInput
 }
 
 export type AccountUncheckedUpdateWithoutAllocationsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   platform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cash?: Prisma.FloatFieldUpdateOperationsInput | number
   targetAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutAccountNestedInput
+  holdings?: Prisma.HoldingUncheckedUpdateManyWithoutAccountNestedInput
 }
 
 export type AccountCreateWithoutTransactionsInput = {
   name: string
+  type?: string | null
   platform?: string | null
+  cash?: number
   targetAmount?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   allocations?: Prisma.AssetAllocationCreateNestedManyWithoutAccountInput
+  holdings?: Prisma.HoldingCreateNestedManyWithoutAccountInput
 }
 
 export type AccountUncheckedCreateWithoutTransactionsInput = {
   id?: number
   name: string
+  type?: string | null
   platform?: string | null
+  cash?: number
   targetAmount?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   allocations?: Prisma.AssetAllocationUncheckedCreateNestedManyWithoutAccountInput
+  holdings?: Prisma.HoldingUncheckedCreateNestedManyWithoutAccountInput
 }
 
 export type AccountCreateOrConnectWithoutTransactionsInput = {
@@ -540,21 +703,27 @@ export type AccountUpdateToOneWithWhereWithoutTransactionsInput = {
 
 export type AccountUpdateWithoutTransactionsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   platform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cash?: Prisma.FloatFieldUpdateOperationsInput | number
   targetAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   allocations?: Prisma.AssetAllocationUpdateManyWithoutAccountNestedInput
+  holdings?: Prisma.HoldingUpdateManyWithoutAccountNestedInput
 }
 
 export type AccountUncheckedUpdateWithoutTransactionsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   platform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cash?: Prisma.FloatFieldUpdateOperationsInput | number
   targetAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   allocations?: Prisma.AssetAllocationUncheckedUpdateManyWithoutAccountNestedInput
+  holdings?: Prisma.HoldingUncheckedUpdateManyWithoutAccountNestedInput
 }
 
 
@@ -565,11 +734,13 @@ export type AccountUncheckedUpdateWithoutTransactionsInput = {
 export type AccountCountOutputType = {
   allocations: number
   transactions: number
+  holdings: number
 }
 
 export type AccountCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   allocations?: boolean | AccountCountOutputTypeCountAllocationsArgs
   transactions?: boolean | AccountCountOutputTypeCountTransactionsArgs
+  holdings?: boolean | AccountCountOutputTypeCountHoldingsArgs
 }
 
 /**
@@ -596,23 +767,35 @@ export type AccountCountOutputTypeCountTransactionsArgs<ExtArgs extends runtime.
   where?: Prisma.TransactionWhereInput
 }
 
+/**
+ * AccountCountOutputType without action
+ */
+export type AccountCountOutputTypeCountHoldingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.HoldingWhereInput
+}
+
 
 export type AccountSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  type?: boolean
   platform?: boolean
+  cash?: boolean
   targetAmount?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   allocations?: boolean | Prisma.Account$allocationsArgs<ExtArgs>
   transactions?: boolean | Prisma.Account$transactionsArgs<ExtArgs>
+  holdings?: boolean | Prisma.Account$holdingsArgs<ExtArgs>
   _count?: boolean | Prisma.AccountCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["account"]>
 
 export type AccountSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  type?: boolean
   platform?: boolean
+  cash?: boolean
   targetAmount?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -621,7 +804,9 @@ export type AccountSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
 export type AccountSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  type?: boolean
   platform?: boolean
+  cash?: boolean
   targetAmount?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -630,16 +815,19 @@ export type AccountSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
 export type AccountSelectScalar = {
   id?: boolean
   name?: boolean
+  type?: boolean
   platform?: boolean
+  cash?: boolean
   targetAmount?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type AccountOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "platform" | "targetAmount" | "createdAt" | "updatedAt", ExtArgs["result"]["account"]>
+export type AccountOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "type" | "platform" | "cash" | "targetAmount" | "createdAt" | "updatedAt", ExtArgs["result"]["account"]>
 export type AccountInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   allocations?: boolean | Prisma.Account$allocationsArgs<ExtArgs>
   transactions?: boolean | Prisma.Account$transactionsArgs<ExtArgs>
+  holdings?: boolean | Prisma.Account$holdingsArgs<ExtArgs>
   _count?: boolean | Prisma.AccountCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type AccountIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -650,11 +838,14 @@ export type $AccountPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   objects: {
     allocations: Prisma.$AssetAllocationPayload<ExtArgs>[]
     transactions: Prisma.$TransactionPayload<ExtArgs>[]
+    holdings: Prisma.$HoldingPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     name: string
+    type: string | null
     platform: string | null
+    cash: number
     targetAmount: number | null
     createdAt: Date
     updatedAt: Date
@@ -1054,6 +1245,7 @@ export interface Prisma__AccountClient<T, Null = never, ExtArgs extends runtime.
   readonly [Symbol.toStringTag]: "PrismaPromise"
   allocations<T extends Prisma.Account$allocationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Account$allocationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AssetAllocationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   transactions<T extends Prisma.Account$transactionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Account$transactionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  holdings<T extends Prisma.Account$holdingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Account$holdingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$HoldingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1085,7 +1277,9 @@ export interface Prisma__AccountClient<T, Null = never, ExtArgs extends runtime.
 export interface AccountFieldRefs {
   readonly id: Prisma.FieldRef<"Account", 'Int'>
   readonly name: Prisma.FieldRef<"Account", 'String'>
+  readonly type: Prisma.FieldRef<"Account", 'String'>
   readonly platform: Prisma.FieldRef<"Account", 'String'>
+  readonly cash: Prisma.FieldRef<"Account", 'Float'>
   readonly targetAmount: Prisma.FieldRef<"Account", 'Float'>
   readonly createdAt: Prisma.FieldRef<"Account", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Account", 'DateTime'>
@@ -1520,6 +1714,30 @@ export type Account$transactionsArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.TransactionScalarFieldEnum | Prisma.TransactionScalarFieldEnum[]
+}
+
+/**
+ * Account.holdings
+ */
+export type Account$holdingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Holding
+   */
+  select?: Prisma.HoldingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Holding
+   */
+  omit?: Prisma.HoldingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.HoldingInclude<ExtArgs> | null
+  where?: Prisma.HoldingWhereInput
+  orderBy?: Prisma.HoldingOrderByWithRelationInput | Prisma.HoldingOrderByWithRelationInput[]
+  cursor?: Prisma.HoldingWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.HoldingScalarFieldEnum | Prisma.HoldingScalarFieldEnum[]
 }
 
 /**
