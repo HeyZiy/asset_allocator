@@ -4,8 +4,10 @@ function getSecid(symbol: string): string | null {
   const code = symbol.replace(/\D/g, '');
   if (code.length !== 6) return null;
   const first = code.slice(0, 2);
-  if (['51', '60', '58'].includes(first)) return `1.${code}`;
-  if (['15', '00', '30', '16'].includes(first)) return `0.${code}`;
+  // 上海市场代码：51、52、60、68、70、73 等（都用 1. 前缀）
+  // 深圳市场代码：00、15、16、30 等（都用 0. 前缀）
+  if (['51', '52', '56', '58', '60', '68', '70', '73'].includes(first)) return `1.${code}`;
+  if (['00', '15', '16', '30', '20', '39', '37'].includes(first)) return `0.${code}`;
   return null;
 }
 
@@ -95,5 +97,50 @@ export async function updateAssetCurrentPrice(symbol: string): Promise<number | 
         });
     }
     return price;
+}
+
+/**
+ * 从东方财富获取资产的官方名称
+ */
+export async function getAssetNameFromEastMoney(symbol: string): Promise<string | null> {
+    const secid = getSecid(symbol);
+    if (!secid) return null;
+    
+    const url = `http://push2.eastmoney.com/api/qt/stock/get?fields=f58&secid=${secid}`;
+    
+    try {
+        const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+        if (!res.ok) return null;
+        const json = await res.json();
+        const name = json?.data?.f58;
+        return name ? String(name) : null;
+    } catch (e) {
+        console.error('Failed to fetch asset name:', e);
+        return null;
+    }
+}
+
+/**
+ * 创建或更新资产时从官方数据源获取信息
+ */
+export async function enrichAssetFromEastMoney(symbol: string): Promise<{ name?: string; currentPrice?: number }> {
+    const secid = getSecid(symbol);
+    if (!secid) return {};
+    
+    const url = `http://push2.eastmoney.com/api/qt/stock/get?fields=f58,f57&secid=${secid}`;
+    
+    try {
+        const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+        if (!res.ok) return {};
+        const json = await res.json();
+        const data = json?.data;
+        return {
+            name: data?.f58 ? String(data.f58) : undefined,
+            currentPrice: data?.f57 ? parseFloat(data.f57) : undefined,
+        };
+    } catch (e) {
+        console.error('Failed to enrich asset:', e);
+        return {};
+    }
 }
 

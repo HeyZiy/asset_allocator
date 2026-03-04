@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/db';
+import { enrichAssetFromEastMoney } from '@/lib/price-fetcher';
 
 export async function GET() {
   try {
@@ -18,16 +19,105 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const data = await request.json();
+    
+    // Try to enrich asset data from official source (EastMoney)
+    let name = data.name || '';
+    let currentPrice = data.currentPrice || null;
+    
+    if (!name || currentPrice == null) {
+      const enriched = await enrichAssetFromEastMoney(data.symbol);
+      if (!name && enriched.name) {
+        name = enriched.name;
+      }
+      if (currentPrice == null && enriched.currentPrice) {
+        currentPrice = enriched.currentPrice;
+      }
+    }
+    
+    // If still no name, use symbol as fallback
+    if (!name) {
+      name = data.symbol;
+    }
+    
     const asset = await prisma.asset.create({
       data: {
-        name: data.name,
+        name,
         symbol: data.symbol,
-        type: data.type,
-        currentPrice: data.currentPrice,
+        type: data.type || 'stock',
+        currentPrice: currentPrice || 0,
       },
     });
     return NextResponse.json(asset, { status: 201 });
   } catch (error) {
+    console.error('API Error:', error);
     return NextResponse.json({ error: 'Failed to create asset' }, { status: 500 });
+  }
+}
+
+export async function PUT(request: NextRequest) {
+  try {
+    const data = await request.json();
+    const { id, name, type, currentPrice } = data;
+    
+    if (!id) {
+      return NextResponse.json({ error: 'Asset ID is required' }, { status: 400 });
+    }
+
+    const asset = await prisma.asset.update({
+      where: { id: parseInt(id) },
+      data: {
+        ...(name !== undefined && { name }),
+        ...(type !== undefined && { type }),
+        ...(currentPrice !== undefined && { currentPrice }),
+      },
+    });
+
+    return NextResponse.json(asset);
+  } catch (error: any) {
+    console.error('API Error:', error);
+    return NextResponse.json({ error: 'Failed to update asset' }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+    
+    if (!id) {
+      return NextResponse.json({ error: 'Asset ID is required' }, { status: 400 });
+    }
+
+    // Check if asset is used in allocations or transactions
+    const usage = await prisma.assetAllocation.findFirst({
+      where: { assetId: parseInt(id) },
+    });
+
+    if (usage) {
+      return NextResponse.json(
+        { error: '无法删除：该资产已用于配置，请先删除相关配置' },
+        { status: 400 }
+      );
+    }
+
+    const txUsage = await prisma.transaction.findFirst({
+      where: { assetId: parseInt(id) },
+    });
+
+    if (txUsage) {
+      return NextResponse.json(
+        { error: '无法删除：该资产已有交易记录' },
+        { status: 400 }
+      );
+    }
+
+    await prisma.asset.delete({
+      where: { id: parseInt(id) },
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error: any) {
+    console.error('API Error:', error);
+    return NextResponse.json({ error: 'Failed to delete asset' }, { status: 500 });
   }
 }

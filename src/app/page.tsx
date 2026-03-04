@@ -54,12 +54,15 @@ export default function Home() {
   const [isTxOpen, setIsTxOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isAllocationOpen, setIsAllocationOpen] = useState(false);
+  const [isAssetManageOpen, setIsAssetManageOpen] = useState(false);
+  const [isEditAssetOpen, setIsEditAssetOpen] = useState(false);
   
   // Selection Context
   const [selectedAccountId, setSelectedAccountId] = useState<number | null>(null);
   const [accountToDelete, setAccountToDelete] = useState<number | null>(null);
   const [accountForAllocation, setAccountForAllocation] = useState<number | null>(null);
   const [accountToEdit, setAccountToEdit] = useState<PortfolioAccount | null>(null);
+  const [editingAsset, setEditingAsset] = useState<any | null>(null);
   
   // Forms Data
   const [allocations, setAllocations] = useState<any[]>([]);
@@ -73,6 +76,7 @@ export default function Home() {
   const [availableAssets, setAvailableAssets] = useState<any[]>([]);
   const [newAccount, setNewAccount] = useState({ name: '', platform: '', cash: '0' });
   const [editAccountData, setEditAccountData] = useState({ name: '', platform: '', targetAmount: '', cash: '' });
+  const [editingAssetData, setEditingAssetData] = useState({ name: '', type: '', currentPrice: '' });
   const [newTx, setNewTx] = useState({ 
     accountId: 0, 
     type: 'buy', 
@@ -127,6 +131,7 @@ export default function Home() {
 
   useEffect(() => {
     fetchAllPortfolios();
+    fetchAvailableAssets();
   }, []);
 
   const handleRefreshPrices = async () => {
@@ -236,6 +241,59 @@ export default function Home() {
         const err = await res.json();
         alert(err.error || '账户删除失败');
     }
+  };
+
+  // --- Asset Management Functions ---
+
+  const handleUpdateAsset = async () => {
+    if (!editingAsset) return;
+
+    const res = await fetch('/api/assets', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: editingAsset.id,
+        name: editingAssetData.name,
+        type: editingAssetData.type,
+        currentPrice: editingAssetData.currentPrice ? parseFloat(editingAssetData.currentPrice) : undefined,
+      }),
+    });
+
+    if (res.ok) {
+      setIsEditAssetOpen(false);
+      setEditingAsset(null);
+      setEditingAssetData({ name: '', type: '', currentPrice: '' });
+      await fetchAvailableAssets();
+    } else {
+      const err = await res.json();
+      alert(err.error || '资产更新失败');
+    }
+  };
+
+  const handleDeleteAsset = async (assetId: number) => {
+    if (!confirm('确定要删除该资产吗？')) return;
+
+    const res = await fetch(`/api/assets?id=${assetId}`, {
+      method: 'DELETE',
+    });
+
+    if (res.ok) {
+      await fetchAvailableAssets();
+      alert('资产删除成功');
+    } else {
+      const err = await res.json();
+      alert(err.error || '删除失败');
+    }
+  };
+
+  const openEditAssetDialog = (asset: any) => {
+    setEditingAsset(asset);
+    setEditingAssetData({
+      name: asset.name || '',
+      type: asset.type || 'stock',
+      currentPrice: asset.currentPrice ? asset.currentPrice.toString() : '',
+    });
+    setIsEditAssetOpen(true);
   };
 
   // --- Asset Allocation Functions ---  
@@ -438,6 +496,9 @@ export default function Home() {
                 <RefreshCw className={`mr-2 h-4 w-4 ${refreshingPrices ? 'animate-spin' : ''}`} />
                 {refreshingPrices ? '更新最新行情...' : '刷新市值'}
             </Button>
+            <Button variant="outline" onClick={() => setIsAssetManageOpen(true)}>
+                📊 资产管理
+            </Button>
             <Dialog open={isAddAccountOpen} onOpenChange={setIsAddAccountOpen}>
                 <DialogTrigger asChild><Button><Plus className="mr-2 h-4 w-4"/> 新建账户</Button></DialogTrigger>
                 <DialogContent>
@@ -496,6 +557,92 @@ export default function Home() {
                         </div>
                     </div>
                     <DialogFooter><Button onClick={handleUpdateAccount}>保存修改</Button></DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={isAssetManageOpen} onOpenChange={setIsAssetManageOpen}>
+                <DialogContent className="max-w-2xl">
+                    <DialogHeader><DialogTitle>资产管理</DialogTitle></DialogHeader>
+                    <div className="space-y-4">
+                        {availableAssets.length === 0 ? (
+                            <p className="text-center text-muted-foreground py-8">暂无资产</p>
+                        ) : (
+                            <div className="space-y-2 max-h-96 overflow-y-auto">
+                                {availableAssets.map((asset) => (
+                                    <div key={asset.id} className="flex items-center justify-between p-3 border rounded">
+                                        <div>
+                                            <div className="font-medium">{asset.name || asset.symbol}</div>
+                                            <div className="text-xs text-muted-foreground">{asset.symbol}</div>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <Button 
+                                                size="sm" 
+                                                variant="outline"
+                                                onClick={() => openEditAssetDialog(asset)}
+                                            >
+                                                编辑
+                                            </Button>
+                                            <Button 
+                                                size="sm" 
+                                                variant="destructive"
+                                                onClick={() => handleDeleteAsset(asset.id)}
+                                            >
+                                                删除
+                                            </Button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={isEditAssetOpen} onOpenChange={setIsEditAssetOpen}>
+                <DialogContent>
+                    <DialogHeader><DialogTitle>编辑资产</DialogTitle></DialogHeader>
+                    {editingAsset && (
+                        <div className="grid gap-4 py-4">
+                            <div className="grid grid-cols-4 items-center gap-4">
+                                <Label className="text-right">代码</Label>
+                                <Input value={editingAsset.symbol} disabled className="col-span-3 bg-gray-100" />
+                            </div>
+                            <div className="grid grid-cols-4 items-center gap-4">
+                                <Label className="text-right">名称</Label>
+                                <Input 
+                                    value={editingAssetData.name} 
+                                    onChange={e => setEditingAssetData({...editingAssetData, name: e.target.value})} 
+                                    className="col-span-3" 
+                                />
+                            </div>
+                            <div className="grid grid-cols-4 items-center gap-4">
+                                <Label className="text-right">类型</Label>
+                                <Select value={editingAssetData.type} onValueChange={val => setEditingAssetData({...editingAssetData, type: val})}>
+                                    <SelectTrigger className="col-span-3">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="stock">股票</SelectItem>
+                                        <SelectItem value="fund">基金</SelectItem>
+                                        <SelectItem value="bond">债券</SelectItem>
+                                        <SelectItem value="crypto">加密货币</SelectItem>
+                                        <SelectItem value="other">其他</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="grid grid-cols-4 items-center gap-4">
+                                <Label className="text-right">当前价格</Label>
+                                <Input 
+                                    type="number" 
+                                    value={editingAssetData.currentPrice} 
+                                    onChange={e => setEditingAssetData({...editingAssetData, currentPrice: e.target.value})} 
+                                    className="col-span-3" 
+                                    placeholder="0.00"
+                                />
+                            </div>
+                        </div>
+                    )}
+                    <DialogFooter><Button onClick={handleUpdateAsset}>保存</Button></DialogFooter>
                 </DialogContent>
             </Dialog>
         </div>
@@ -766,21 +913,36 @@ export default function Home() {
                 {newAllocation.assetType === 'existing' && (
                     <div className="grid grid-cols-4 items-center gap-3">
                         <Label className="text-right text-xs">选择资产</Label>
-                        <Select 
-                            value={newAllocation.assetId} 
-                            onValueChange={v => setNewAllocation({...newAllocation, assetId: v})}
-                        >
-                            <SelectTrigger className="col-span-3 h-8">
-                                <SelectValue placeholder="选择资产" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {availableAssets.map(asset => (
-                                    <SelectItem key={asset.id} value={asset.id.toString()}>
-                                        {asset.name || asset.symbol} ({asset.symbol})
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                        <div className="col-span-3 flex gap-2">
+                            <Select 
+                                value={newAllocation.assetId} 
+                                onValueChange={v => setNewAllocation({...newAllocation, assetId: v})}
+                            >
+                                <SelectTrigger className="h-8 flex-1">
+                                    <SelectValue placeholder="选择资产" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {availableAssets.map(asset => (
+                                        <SelectItem key={asset.id} value={asset.id.toString()}>
+                                            {asset.name || asset.symbol} ({asset.symbol})
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            {newAllocation.assetId && (
+                                <Button 
+                                    size="sm" 
+                                    variant="outline"
+                                    onClick={() => {
+                                        const asset = availableAssets.find(a => a.id.toString() === newAllocation.assetId);
+                                        if (asset) openEditAssetDialog(asset);
+                                    }}
+                                    className="h-8 w-8 p-0"
+                                >
+                                    ✏️
+                                </Button>
+                            )}
+                        </div>
                     </div>
                 )}
                 
@@ -788,21 +950,41 @@ export default function Home() {
                 {newAllocation.assetType === 'new' && (
                     <>
                         <div className="grid grid-cols-4 items-center gap-3">
+                            <Label className="text-right text-xs">资产代码</Label>
+                            <div className="col-span-3 flex gap-2">
+                                <Input 
+                                    value={newAllocation.newAssetSymbol} 
+                                    onChange={e => setNewAllocation({...newAllocation, newAssetSymbol: e.target.value})} 
+                                    className="h-8 flex-1" 
+                                    placeholder="例如: 00700 或 510300"
+                                />
+                                {newAllocation.newAssetSymbol && (
+                                    <Button 
+                                        size="sm" 
+                                        variant="outline"
+                                        onClick={async () => {
+                                            const res = await fetch(`/api/assets/lookup?symbol=${encodeURIComponent(newAllocation.newAssetSymbol)}`);
+                                            const data = await res.json();
+                                            if (data.name) {
+                                                setNewAllocation({...newAllocation, newAssetName: data.name});
+                                            } else {
+                                                alert('无法获取该代码的官方名称，请手动输入');
+                                            }
+                                        }}
+                                        className="h-8"
+                                    >
+                                        查询
+                                    </Button>
+                                )}
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-4 items-center gap-3">
                             <Label className="text-right text-xs">资产名称</Label>
                             <Input 
                                 value={newAllocation.newAssetName} 
                                 onChange={e => setNewAllocation({...newAllocation, newAssetName: e.target.value})} 
                                 className="col-span-3 h-8" 
-                                placeholder="例如: 腾讯控股"
-                            />
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-3">
-                            <Label className="text-right text-xs">资产代码</Label>
-                            <Input 
-                                value={newAllocation.newAssetSymbol} 
-                                onChange={e => setNewAllocation({...newAllocation, newAssetSymbol: e.target.value})} 
-                                className="col-span-3 h-8" 
-                                placeholder="例如: 00700"
+                                placeholder="自动填充或手动输入"
                             />
                         </div>
                     </>
