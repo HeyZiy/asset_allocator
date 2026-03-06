@@ -73,13 +73,16 @@ export async function GET(request: NextRequest) {
         const targetValue = allocationBaseValue * (p.targetPercent / 100);
         
         const diffValue = targetValue - p.currentValue;
+        const rawActionShares = p.price > 0 ? diffValue / p.price : 0;
+        const roundedToLot = Math.round(rawActionShares / 100) * 100;
+        const actionShares = Math.abs(roundedToLot) < 100 ? 0 : roundedToLot;
         
         return {
             ...p,
             currentPercent: parseFloat(currentPercent.toFixed(2)),
             targetValue: parseFloat(targetValue.toFixed(2)),
             driftValue: parseFloat(diffValue.toFixed(2)), // + means Buy, - means Sell
-            actionShares: p.price > 0 ? Math.round(diffValue / p.price) : 0
+            actionShares
         };
     });
 
