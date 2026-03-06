@@ -52,37 +52,37 @@ async function main() {
 
   // 长钱 银河证券：25% a500, 10% hs300, 25% 红利, 15% 主要消费, 10% 短债, 10% 海外(纳指+标普各半), 5% 黄金
   const changqianAllocs = [
-    { symbol: '510500', targetPct: 25 },
-    { symbol: '510300', targetPct: 10 },
-    { symbol: '510880', targetPct: 25 },
-    { symbol: '159928', targetPct: 15 },
-    { symbol: '511380', targetPct: 10 },
-    { symbol: '513100', targetPct: 5 },
-    { symbol: '513500', targetPct: 5 },
-    { symbol: '518880', targetPct: 5 },
+    { symbol: '510500', targetPercent: 25 },
+    { symbol: '510300', targetPercent: 10 },
+    { symbol: '510880', targetPercent: 25 },
+    { symbol: '159928', targetPercent: 15 },
+    { symbol: '511380', targetPercent: 10 },
+    { symbol: '513100', targetPercent: 5 },
+    { symbol: '513500', targetPercent: 5 },
+    { symbol: '518880', targetPercent: 5 },
   ];
-  for (const { symbol, targetPct } of changqianAllocs) {
+  for (const { symbol, targetPercent } of changqianAllocs) {
     await prisma.assetAllocation.create({
-      data: { accountId: accountChangqian.id, assetId: bySymbol(symbol).id, targetPct },
+      data: { accountId: accountChangqian.id, assetId: bySymbol(symbol).id, targetPercent },
     });
   }
 
   // 博弈仓 东方：趋势交易，需用户自行添加标的
   // 稳健 京东金融：80% 债基, 5% 红利, 5% 主动基金, 10% 货币
   const wenjianAllocs = [
-    { symbol: '511080', targetPct: 80 },
-    { symbol: '510880', targetPct: 5 },
-    { symbol: '511880', targetPct: 15 },
+    { symbol: '511080', targetPercent: 80 },
+    { symbol: '510880', targetPercent: 5 },
+    { symbol: '511880', targetPercent: 15 },
   ];
-  for (const { symbol, targetPct } of wenjianAllocs) {
+  for (const { symbol, targetPercent } of wenjianAllocs) {
     await prisma.assetAllocation.create({
-      data: { accountId: accountWenjian.id, assetId: bySymbol(symbol).id, targetPct },
+      data: { accountId: accountWenjian.id, assetId: bySymbol(symbol).id, targetPercent },
     });
   }
 
   // 活钱：100% 货币
   await prisma.assetAllocation.create({
-    data: { accountId: accountHuogian.id, assetId: bySymbol('511880').id, targetPct: 100 },
+    data: { accountId: accountHuogian.id, assetId: bySymbol('511880').id, targetPercent: 100 },
   });
 
   console.log('✅ 种子数据已写入：4 个账户，10 个资产（真实ETF代码）');

@@ -122,6 +122,7 @@ exports.Prisma.AccountScalarFieldEnum = {
   name: 'name',
   type: 'type',
   platform: 'platform',
+  marketType: 'marketType',
   cash: 'cash',
   targetAmount: 'targetAmount',
   createdAt: 'createdAt',

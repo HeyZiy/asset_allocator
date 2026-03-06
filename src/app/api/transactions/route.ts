@@ -28,10 +28,19 @@ export async function POST(request: NextRequest) {
     const shares = data.shares ?? 0;
     const type = data.type; // 'buy' or 'sell'
 
+    // 获取账户信息，判断是场内还是场外
+    const account = await prisma.account.findUnique({
+      where: { id: data.accountId },
+    }) as any;
+
+    if (!account) {
+      return NextResponse.json({ error: '账户不存在' }, { status: 400 });
+    }
+
     // 1. Resolve Asset ID (Create if not exists)
     let assetId = data.assetId;
     let assetSymbol = '';
-    
+
     if (!assetId && data.symbol) {
       const existing = await prisma.asset.findUnique({ where: { symbol: data.symbol } });
       if (existing) {
@@ -61,6 +70,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 2. Fetch Price if missing (only if user didn't provide price)
+    // 场内走行情接口；场外基金会在 price-fetcher 中尝试净值接口兜底。
     if (price == null && shares > 0 && assetSymbol) {
        const fetched = await getPriceBySymbolDate(assetSymbol, date);
        if (fetched != null) {
@@ -68,7 +78,7 @@ export async function POST(request: NextRequest) {
          amount = Math.round(shares * price * 100) / 100;
        }
     }
-    
+
     // Recalculate amount if undefined but price & shares exist
     if (!amount && price && shares) {
         amount = Math.round(shares * price * 100) / 100;

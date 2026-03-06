@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "seed": "npx tsx prisma/seed.ts",
+    "sync:assets": "npx tsx scripts/sync-asset-metadata.ts",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"

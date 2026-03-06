@@ -91,6 +91,7 @@ export async function GET(request: NextRequest) {
             id: account.id,
             name: account.name,
             platform: account.platform,
+            marketType: account.marketType,
             cash: account.cash,
             targetAmount: account.targetAmount,
             totalValue: parseFloat(totalValue.toFixed(2)),

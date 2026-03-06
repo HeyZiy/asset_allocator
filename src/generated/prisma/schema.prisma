@@ -16,6 +16,7 @@ model Account {
   name         String
   type         String? // "cash", "investment" etc.
   platform     String?
+  marketType   String   @default("exchange") // "exchange" 场内, "otc" 场外
   cash         Float    @default(0) // 账户现金余额
   targetAmount Float? // 账户总目标投入（可选）
   createdAt    DateTime @default(now())

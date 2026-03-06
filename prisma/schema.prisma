@@ -16,11 +16,12 @@ model Account {
   name         String
   type         String?  // "cash", "investment" etc.
   platform     String?
+  marketType   String   @default("exchange") // "exchange" 场内, "otc" 场外
   cash         Float    @default(0) // 账户现金余额
   targetAmount Float?   // 账户总目标投入（可选）
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-  
+
   allocations  AssetAllocation[] // 配置目标
   transactions Transaction[]     // 交易流水
   holdings     Holding[]         // 当前持仓（新增）

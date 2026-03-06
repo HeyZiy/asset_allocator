@@ -1447,6 +1447,7 @@ export namespace Prisma {
     name: string | null
     type: string | null
     platform: string | null
+    marketType: string | null
     cash: number | null
     targetAmount: number | null
     createdAt: Date | null
@@ -1458,6 +1459,7 @@ export namespace Prisma {
     name: string | null
     type: string | null
     platform: string | null
+    marketType: string | null
     cash: number | null
     targetAmount: number | null
     createdAt: Date | null
@@ -1469,6 +1471,7 @@ export namespace Prisma {
     name: number
     type: number
     platform: number
+    marketType: number
     cash: number
     targetAmount: number
     createdAt: number
@@ -1494,6 +1497,7 @@ export namespace Prisma {
     name?: true
     type?: true
     platform?: true
+    marketType?: true
     cash?: true
     targetAmount?: true
     createdAt?: true
@@ -1505,6 +1509,7 @@ export namespace Prisma {
     name?: true
     type?: true
     platform?: true
+    marketType?: true
     cash?: true
     targetAmount?: true
     createdAt?: true
@@ -1516,6 +1521,7 @@ export namespace Prisma {
     name?: true
     type?: true
     platform?: true
+    marketType?: true
     cash?: true
     targetAmount?: true
     createdAt?: true
@@ -1614,6 +1620,7 @@ export namespace Prisma {
     name: string
     type: string | null
     platform: string | null
+    marketType: string
     cash: number
     targetAmount: number | null
     createdAt: Date
@@ -1644,6 +1651,7 @@ export namespace Prisma {
     name?: boolean
     type?: boolean
     platform?: boolean
+    marketType?: boolean
     cash?: boolean
     targetAmount?: boolean
     createdAt?: boolean
@@ -1659,6 +1667,7 @@ export namespace Prisma {
     name?: boolean
     type?: boolean
     platform?: boolean
+    marketType?: boolean
     cash?: boolean
     targetAmount?: boolean
     createdAt?: boolean
@@ -1670,6 +1679,7 @@ export namespace Prisma {
     name?: boolean
     type?: boolean
     platform?: boolean
+    marketType?: boolean
     cash?: boolean
     targetAmount?: boolean
     createdAt?: boolean
@@ -1681,13 +1691,14 @@ export namespace Prisma {
     name?: boolean
     type?: boolean
     platform?: boolean
+    marketType?: boolean
     cash?: boolean
     targetAmount?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type AccountOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "type" | "platform" | "cash" | "targetAmount" | "createdAt" | "updatedAt", ExtArgs["result"]["account"]>
+  export type AccountOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "type" | "platform" | "marketType" | "cash" | "targetAmount" | "createdAt" | "updatedAt", ExtArgs["result"]["account"]>
   export type AccountInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     allocations?: boolean | Account$allocationsArgs<ExtArgs>
     transactions?: boolean | Account$transactionsArgs<ExtArgs>
@@ -1709,6 +1720,7 @@ export namespace Prisma {
       name: string
       type: string | null
       platform: string | null
+      marketType: string
       cash: number
       targetAmount: number | null
       createdAt: Date
@@ -2143,6 +2155,7 @@ export namespace Prisma {
     readonly name: FieldRef<"Account", 'String'>
     readonly type: FieldRef<"Account", 'String'>
     readonly platform: FieldRef<"Account", 'String'>
+    readonly marketType: FieldRef<"Account", 'String'>
     readonly cash: FieldRef<"Account", 'Float'>
     readonly targetAmount: FieldRef<"Account", 'Float'>
     readonly createdAt: FieldRef<"Account", 'DateTime'>
@@ -8304,6 +8317,7 @@ export namespace Prisma {
     name: 'name',
     type: 'type',
     platform: 'platform',
+    marketType: 'marketType',
     cash: 'cash',
     targetAmount: 'targetAmount',
     createdAt: 'createdAt',
@@ -8438,6 +8452,7 @@ export namespace Prisma {
     name?: StringFilter<"Account"> | string
     type?: StringNullableFilter<"Account"> | string | null
     platform?: StringNullableFilter<"Account"> | string | null
+    marketType?: StringFilter<"Account"> | string
     cash?: FloatFilter<"Account"> | number
     targetAmount?: FloatNullableFilter<"Account"> | number | null
     createdAt?: DateTimeFilter<"Account"> | Date | string
@@ -8452,6 +8467,7 @@ export namespace Prisma {
     name?: SortOrder
     type?: SortOrderInput | SortOrder
     platform?: SortOrderInput | SortOrder
+    marketType?: SortOrder
     cash?: SortOrder
     targetAmount?: SortOrderInput | SortOrder
     createdAt?: SortOrder
@@ -8469,6 +8485,7 @@ export namespace Prisma {
     name?: StringFilter<"Account"> | string
     type?: StringNullableFilter<"Account"> | string | null
     platform?: StringNullableFilter<"Account"> | string | null
+    marketType?: StringFilter<"Account"> | string
     cash?: FloatFilter<"Account"> | number
     targetAmount?: FloatNullableFilter<"Account"> | number | null
     createdAt?: DateTimeFilter<"Account"> | Date | string
@@ -8483,6 +8500,7 @@ export namespace Prisma {
     name?: SortOrder
     type?: SortOrderInput | SortOrder
     platform?: SortOrderInput | SortOrder
+    marketType?: SortOrder
     cash?: SortOrder
     targetAmount?: SortOrderInput | SortOrder
     createdAt?: SortOrder
@@ -8502,6 +8520,7 @@ export namespace Prisma {
     name?: StringWithAggregatesFilter<"Account"> | string
     type?: StringNullableWithAggregatesFilter<"Account"> | string | null
     platform?: StringNullableWithAggregatesFilter<"Account"> | string | null
+    marketType?: StringWithAggregatesFilter<"Account"> | string
     cash?: FloatWithAggregatesFilter<"Account"> | number
     targetAmount?: FloatNullableWithAggregatesFilter<"Account"> | number | null
     createdAt?: DateTimeWithAggregatesFilter<"Account"> | Date | string
@@ -8861,6 +8880,7 @@ export namespace Prisma {
     name: string
     type?: string | null
     platform?: string | null
+    marketType?: string
     cash?: number
     targetAmount?: number | null
     createdAt?: Date | string
@@ -8875,6 +8895,7 @@ export namespace Prisma {
     name: string
     type?: string | null
     platform?: string | null
+    marketType?: string
     cash?: number
     targetAmount?: number | null
     createdAt?: Date | string
@@ -8888,6 +8909,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     type?: NullableStringFieldUpdateOperationsInput | string | null
     platform?: NullableStringFieldUpdateOperationsInput | string | null
+    marketType?: StringFieldUpdateOperationsInput | string
     cash?: FloatFieldUpdateOperationsInput | number
     targetAmount?: NullableFloatFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -8902,6 +8924,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     type?: NullableStringFieldUpdateOperationsInput | string | null
     platform?: NullableStringFieldUpdateOperationsInput | string | null
+    marketType?: StringFieldUpdateOperationsInput | string
     cash?: FloatFieldUpdateOperationsInput | number
     targetAmount?: NullableFloatFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -8916,6 +8939,7 @@ export namespace Prisma {
     name: string
     type?: string | null
     platform?: string | null
+    marketType?: string
     cash?: number
     targetAmount?: number | null
     createdAt?: Date | string
@@ -8926,6 +8950,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     type?: NullableStringFieldUpdateOperationsInput | string | null
     platform?: NullableStringFieldUpdateOperationsInput | string | null
+    marketType?: StringFieldUpdateOperationsInput | string
     cash?: FloatFieldUpdateOperationsInput | number
     targetAmount?: NullableFloatFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -8937,6 +8962,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     type?: NullableStringFieldUpdateOperationsInput | string | null
     platform?: NullableStringFieldUpdateOperationsInput | string | null
+    marketType?: StringFieldUpdateOperationsInput | string
     cash?: FloatFieldUpdateOperationsInput | number
     targetAmount?: NullableFloatFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -9396,6 +9422,7 @@ export namespace Prisma {
     name?: SortOrder
     type?: SortOrder
     platform?: SortOrder
+    marketType?: SortOrder
     cash?: SortOrder
     targetAmount?: SortOrder
     createdAt?: SortOrder
@@ -9413,6 +9440,7 @@ export namespace Prisma {
     name?: SortOrder
     type?: SortOrder
     platform?: SortOrder
+    marketType?: SortOrder
     cash?: SortOrder
     targetAmount?: SortOrder
     createdAt?: SortOrder
@@ -9424,6 +9452,7 @@ export namespace Prisma {
     name?: SortOrder
     type?: SortOrder
     platform?: SortOrder
+    marketType?: SortOrder
     cash?: SortOrder
     targetAmount?: SortOrder
     createdAt?: SortOrder
@@ -10675,6 +10704,7 @@ export namespace Prisma {
     name: string
     type?: string | null
     platform?: string | null
+    marketType?: string
     cash?: number
     targetAmount?: number | null
     createdAt?: Date | string
@@ -10688,6 +10718,7 @@ export namespace Prisma {
     name: string
     type?: string | null
     platform?: string | null
+    marketType?: string
     cash?: number
     targetAmount?: number | null
     createdAt?: Date | string
@@ -10746,6 +10777,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     type?: NullableStringFieldUpdateOperationsInput | string | null
     platform?: NullableStringFieldUpdateOperationsInput | string | null
+    marketType?: StringFieldUpdateOperationsInput | string
     cash?: FloatFieldUpdateOperationsInput | number
     targetAmount?: NullableFloatFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -10759,6 +10791,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     type?: NullableStringFieldUpdateOperationsInput | string | null
     platform?: NullableStringFieldUpdateOperationsInput | string | null
+    marketType?: StringFieldUpdateOperationsInput | string
     cash?: FloatFieldUpdateOperationsInput | number
     targetAmount?: NullableFloatFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -10807,6 +10840,7 @@ export namespace Prisma {
     name: string
     type?: string | null
     platform?: string | null
+    marketType?: string
     cash?: number
     targetAmount?: number | null
     createdAt?: Date | string
@@ -10820,6 +10854,7 @@ export namespace Prisma {
     name: string
     type?: string | null
     platform?: string | null
+    marketType?: string
     cash?: number
     targetAmount?: number | null
     createdAt?: Date | string
@@ -10878,6 +10913,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     type?: NullableStringFieldUpdateOperationsInput | string | null
     platform?: NullableStringFieldUpdateOperationsInput | string | null
+    marketType?: StringFieldUpdateOperationsInput | string
     cash?: FloatFieldUpdateOperationsInput | number
     targetAmount?: NullableFloatFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -10891,6 +10927,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     type?: NullableStringFieldUpdateOperationsInput | string | null
     platform?: NullableStringFieldUpdateOperationsInput | string | null
+    marketType?: StringFieldUpdateOperationsInput | string
     cash?: FloatFieldUpdateOperationsInput | number
     targetAmount?: NullableFloatFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -10939,6 +10976,7 @@ export namespace Prisma {
     name: string
     type?: string | null
     platform?: string | null
+    marketType?: string
     cash?: number
     targetAmount?: number | null
     createdAt?: Date | string
@@ -10952,6 +10990,7 @@ export namespace Prisma {
     name: string
     type?: string | null
     platform?: string | null
+    marketType?: string
     cash?: number
     targetAmount?: number | null
     createdAt?: Date | string
@@ -11010,6 +11049,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     type?: NullableStringFieldUpdateOperationsInput | string | null
     platform?: NullableStringFieldUpdateOperationsInput | string | null
+    marketType?: StringFieldUpdateOperationsInput | string
     cash?: FloatFieldUpdateOperationsInput | number
     targetAmount?: NullableFloatFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -11023,6 +11063,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     type?: NullableStringFieldUpdateOperationsInput | string | null
     platform?: NullableStringFieldUpdateOperationsInput | string | null
+    marketType?: StringFieldUpdateOperationsInput | string
     cash?: FloatFieldUpdateOperationsInput | number
     targetAmount?: NullableFloatFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string

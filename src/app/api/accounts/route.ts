@@ -21,14 +21,16 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const data = await request.json();
-    const account = await prisma.account.create({
-      data: {
-        name: data.name,
-        platform: data.platform ?? null,
-        targetAmount: data.targetAmount != null ? parseFloat(data.targetAmount) : null,
-        cash: data.cash != null ? parseFloat(data.cash) : 0, // Handle cash
-      },
-    });
+    const createData: any = {
+      name: data.name,
+      platform: data.platform ?? null,
+      targetAmount: data.targetAmount != null ? parseFloat(data.targetAmount) : null,
+      cash: data.cash != null ? parseFloat(data.cash) : 0,
+    };
+    if (data.marketType) {
+      createData.marketType = data.marketType;
+    }
+    const account = await prisma.account.create({ data: createData });
     return NextResponse.json(account, { status: 201 });
   } catch (error: any) {
     console.error('API Error:', error);
@@ -39,8 +41,8 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const data = await request.json();
-    const { id, name, platform, targetAmount, cash } = data;
-    
+    const { id, name, platform, marketType, targetAmount, cash } = data;
+
     if (!id) {
         return NextResponse.json({ error: 'Account ID is required' }, { status: 400 });
     }
@@ -48,6 +50,7 @@ export async function PUT(request: NextRequest) {
     const updateData: any = {};
     if (name !== undefined) updateData.name = name;
     if (platform !== undefined) updateData.platform = platform;
+    if (marketType !== undefined) updateData.marketType = marketType;
     if (targetAmount !== undefined) updateData.targetAmount = targetAmount;
     if (cash !== undefined && cash !== null) updateData.cash = cash;
 

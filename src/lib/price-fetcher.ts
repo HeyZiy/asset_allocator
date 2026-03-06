@@ -11,6 +11,64 @@ function getSecid(symbol: string): string | null {
   return null;
 }
 
+function getFundCode(symbol: string): string | null {
+  const code = symbol.replace(/\D/g, '');
+  return code.length === 6 ? code : null;
+}
+
+function isReasonablePrice(price: number | undefined): boolean {
+  if (price == null || Number.isNaN(price)) return false;
+  return price > 0 && price < 10000;
+}
+
+async function fetchFundDataFromEastMoney(symbol: string): Promise<{ name?: string; navByDate?: Map<string, number>; latestNav?: number }> {
+  const fundCode = getFundCode(symbol);
+  if (!fundCode) return {};
+
+  const url = `https://fund.eastmoney.com/pingzhongdata/${fundCode}.js?v=${Date.now()}`;
+
+  try {
+    const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+    if (!res.ok) return {};
+
+    const text = await res.text();
+
+    const nameMatch = text.match(/var\s+fS_name\s*=\s*"([^"]+)"/);
+    const trendMatch = text.match(/var\s+Data_netWorthTrend\s*=\s*(\[[\s\S]*?\]);/);
+
+    const result: { name?: string; navByDate?: Map<string, number>; latestNav?: number } = {};
+
+    if (nameMatch?.[1]) {
+      result.name = nameMatch[1];
+    }
+
+    if (trendMatch?.[1]) {
+      const trend = JSON.parse(trendMatch[1]) as Array<{ x: number; y: number }>;
+      if (Array.isArray(trend) && trend.length > 0) {
+        const navMap = new Map<string, number>();
+
+        for (const item of trend) {
+          if (!item || typeof item.x !== 'number' || typeof item.y !== 'number') continue;
+          const dateKey = new Date(item.x).toISOString().slice(0, 10);
+          navMap.set(dateKey, item.y);
+        }
+
+        result.navByDate = navMap;
+
+        const latest = trend[trend.length - 1];
+        if (latest && typeof latest.y === 'number') {
+          result.latestNav = latest.y;
+        }
+      }
+    }
+
+    return result;
+  } catch (e) {
+    console.error('Fund fetch error:', e);
+    return {};
+  }
+}
+
 async function fetchFromEastMoney(secid: string, dateStr: string): Promise<number | null> {
   const date = new Date(dateStr);
   const beg = new Date(date);
@@ -63,9 +121,29 @@ export async function getPriceBySymbolDate(symbol: string, date: Date): Promise<
     where: { symbol_date: { symbol, date } },
   });
   if (cached) return cached.price;
+
   const secid = getSecid(symbol);
-  if (!secid) return null;
-  const price = await fetchFromEastMoney(secid, dateStr);
+  let price: number | null = null;
+
+  if (secid) {
+    price = await fetchFromEastMoney(secid, dateStr);
+  }
+
+  if (price == null) {
+    const fundData = await fetchFundDataFromEastMoney(symbol);
+    const navByDate = fundData.navByDate;
+
+    if (navByDate && navByDate.size > 0) {
+      if (navByDate.has(dateStr)) {
+        price = navByDate.get(dateStr) ?? null;
+      } else {
+        const sortedDates = Array.from(navByDate.keys()).sort();
+        const fallbackDate = sortedDates.filter(d => d <= dateStr).pop() ?? sortedDates[sortedDates.length - 1];
+        price = fallbackDate ? (navByDate.get(fallbackDate) ?? null) : null;
+      }
+    }
+  }
+
   if (price == null) return null;
   await prisma.priceCache.upsert({
     where: { symbol_date: { symbol, date } },
@@ -77,7 +155,21 @@ export async function getPriceBySymbolDate(symbol: string, date: Date): Promise<
 
 export async function updateAssetCurrentPrice(symbol: string): Promise<number | null> {
     const secid = getSecid(symbol);
-    if (!secid) return null;
+  if (!secid) {
+    const fundData = await fetchFundDataFromEastMoney(symbol);
+    const fundPrice = fundData.latestNav ?? null;
+
+    if (fundPrice !== null) {
+      await prisma.asset.update({
+        where: { symbol },
+        data: {
+          currentPrice: fundPrice,
+          lastPriceUpdated: new Date()
+        }
+      });
+    }
+    return fundPrice;
+  }
     
     // Use EastMoney realtime quote or kline ending today
     // kline is safer for consistent history, but for realtime we might want real quote.
@@ -125,22 +217,36 @@ export async function getAssetNameFromEastMoney(symbol: string): Promise<string 
  */
 export async function enrichAssetFromEastMoney(symbol: string): Promise<{ name?: string; currentPrice?: number }> {
     const secid = getSecid(symbol);
-    if (!secid) return {};
-    
-    const url = `http://push2.eastmoney.com/api/qt/stock/get?fields=f58,f57&secid=${secid}`;
-    
-    try {
-        const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
-        if (!res.ok) return {};
-        const json = await res.json();
-        const data = json?.data;
-        return {
-            name: data?.f58 ? String(data.f58) : undefined,
-            currentPrice: data?.f57 ? parseFloat(data.f57) : undefined,
-        };
-    } catch (e) {
-        console.error('Failed to enrich asset:', e);
-        return {};
+  let fallbackNameFromStock: string | undefined;
+
+    if (secid) {
+      const url = `http://push2.eastmoney.com/api/qt/stock/get?fields=f58,f57&secid=${secid}`;
+
+      try {
+          const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+          if (res.ok) {
+            const json = await res.json();
+            const data = json?.data;
+            const stockName = data?.f58 ? String(data.f58) : undefined;
+            const stockPrice = data?.f57 ? parseFloat(data.f57) : undefined;
+            fallbackNameFromStock = stockName;
+
+            if (isReasonablePrice(stockPrice)) {
+              return {
+                  name: stockName,
+                  currentPrice: stockPrice,
+              };
+            }
+          }
+      } catch (e) {
+          console.error('Failed to enrich stock asset:', e);
+      }
     }
+
+    const fundData = await fetchFundDataFromEastMoney(symbol);
+    return {
+      name: fundData.name ?? fallbackNameFromStock,
+      currentPrice: fundData.latestNav,
+    };
 }
 

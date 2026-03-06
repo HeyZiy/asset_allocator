@@ -30,6 +30,7 @@ interface PortfolioAccount {
   id: number;
   name: string;
   platform?: string;
+  marketType: string;        // "exchange" 场内, "otc" 场外
   cash: number;
   totalValue: number;        // cash + holdings
   holdingsValue: number;
@@ -57,6 +58,7 @@ export default function Home() {
   const [isAssetManageOpen, setIsAssetManageOpen] = useState(false);
   const [isEditAssetOpen, setIsEditAssetOpen] = useState(false);
   const [isDepositCashOpen, setIsDepositCashOpen] = useState(false);
+    const [isManualHoldingOpen, setIsManualHoldingOpen] = useState(false);
   
   // Selection Context
   const [selectedAccountId, setSelectedAccountId] = useState<number | null>(null);
@@ -76,10 +78,20 @@ export default function Home() {
     newAssetSymbol: ''
   });
   const [availableAssets, setAvailableAssets] = useState<any[]>([]);
-  const [newAccount, setNewAccount] = useState({ name: '', platform: '', cash: '0' });
-  const [editAccountData, setEditAccountData] = useState({ name: '', platform: '', targetAmount: '', cash: '' });
+  const [newAccount, setNewAccount] = useState({ name: '', platform: '', marketType: 'exchange', cash: '0' });
+  const [editAccountData, setEditAccountData] = useState({ name: '', platform: '', marketType: 'exchange', targetAmount: '', cash: '' });
   const [editingAssetData, setEditingAssetData] = useState({ name: '', type: '', currentPrice: '' });
   const [depositAmount, setDepositAmount] = useState('');
+    const [manualHoldingAccount, setManualHoldingAccount] = useState<PortfolioAccount | null>(null);
+    const [manualHolding, setManualHolding] = useState({
+        assetType: 'existing', // existing | new
+        assetId: '',
+        symbol: '',
+        name: '',
+        shares: '',
+        avgCost: '',
+        currentPrice: ''
+    });
   const [newTx, setNewTx] = useState({ 
     accountId: 0, 
     type: 'buy', 
@@ -158,7 +170,7 @@ export default function Home() {
       body: JSON.stringify({ ...newAccount, targetAmount: 0 }),
     });
     setIsAddAccountOpen(false);
-    setNewAccount({ name: '', platform: '', cash: '0' });
+    setNewAccount({ name: '', platform: '', marketType: 'exchange', cash: '0' });
     fetchAllPortfolios();
   };
 
@@ -190,6 +202,7 @@ export default function Home() {
             id: accountToEdit.id,
             name: editAccountData.name,
             platform: editAccountData.platform,
+            marketType: editAccountData.marketType,
             targetAmount: target,
             cash: newCash
         }),
@@ -474,7 +487,8 @@ export default function Home() {
       setAccountToEdit(account);
       setEditAccountData({
           name: account.name,
-          platform: '', // account.platform is not in PortfolioAccount yet, maybe add it? Or ignore.
+          platform: account.platform || '',
+          marketType: account.marketType || 'exchange',
           targetAmount: account.targetAmount ? account.targetAmount.toString() : '',
           cash: account.cash.toString()
       });
@@ -485,6 +499,73 @@ export default function Home() {
       setAccountForDeposit(account);
       setDepositAmount('');
       setIsDepositCashOpen(true);
+  };
+
+  const openManualHoldingDialog = (account: PortfolioAccount) => {
+      setManualHoldingAccount(account);
+      setManualHolding({
+        assetType: 'existing',
+        assetId: '',
+        symbol: '',
+        name: '',
+        shares: '',
+        avgCost: '',
+        currentPrice: ''
+      });
+      setIsManualHoldingOpen(true);
+  };
+
+  const handleRecordManualHolding = async () => {
+      if (!manualHoldingAccount) return;
+
+      if (!manualHolding.shares || isNaN(parseFloat(manualHolding.shares)) || parseFloat(manualHolding.shares) < 0) {
+          return alert('请输入有效份额（>=0）');
+      }
+
+      if (manualHolding.assetType === 'existing' && !manualHolding.assetId) {
+          return alert('请选择资产');
+      }
+
+      if (manualHolding.assetType === 'new' && !manualHolding.symbol.trim()) {
+          return alert('请输入资产代码');
+      }
+
+      const payload: any = {
+          accountId: manualHoldingAccount.id,
+          shares: parseFloat(manualHolding.shares),
+      };
+
+      if (manualHolding.avgCost.trim() !== '') {
+          payload.avgCost = parseFloat(manualHolding.avgCost);
+      }
+
+      if (manualHolding.currentPrice.trim() !== '') {
+          payload.currentPrice = parseFloat(manualHolding.currentPrice);
+      }
+
+      if (manualHolding.assetType === 'existing') {
+          payload.assetId = parseInt(manualHolding.assetId);
+      } else {
+          payload.symbol = manualHolding.symbol.trim();
+          payload.name = manualHolding.name.trim() || manualHolding.symbol.trim();
+          payload.assetType = 'fund';
+      }
+
+      const res = await fetch('/api/holdings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+          setIsManualHoldingOpen(false);
+          setManualHoldingAccount(null);
+          await fetchAvailableAssets();
+          await fetchAllPortfolios();
+      } else {
+          const err = await res.json();
+          alert(err.error || '记录份额失败');
+      }
   };
 
   const handleDepositCash = async () => {
@@ -552,6 +633,18 @@ export default function Home() {
                             <Label className="text-right">平台</Label>
                             <Input value={newAccount.platform} onChange={e => setNewAccount({...newAccount, platform: e.target.value})} className="col-span-3" placeholder="例如: 华泰证券" />
                         </div>
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label className="text-right">市场类型</Label>
+                            <Select value={newAccount.marketType} onValueChange={val => setNewAccount({...newAccount, marketType: val})}>
+                                <SelectTrigger className="col-span-3">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="exchange">场内（股票/ETF）</SelectItem>
+                                    <SelectItem value="otc">场外（基金/银行理财）</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
                     </div>
                     <DialogFooter><Button onClick={handleCreateAccount}>创建</Button></DialogFooter>
                 </DialogContent>
@@ -568,6 +661,18 @@ export default function Home() {
                         <div className="grid grid-cols-4 items-center gap-4">
                             <Label className="text-right">平台</Label>
                             <Input value={editAccountData.platform} onChange={e => setEditAccountData({...editAccountData, platform: e.target.value})} className="col-span-3" />
+                        </div>
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label className="text-right">市场类型</Label>
+                            <Select value={editAccountData.marketType} onValueChange={val => setEditAccountData({...editAccountData, marketType: val})}>
+                                <SelectTrigger className="col-span-3">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="exchange">场内（股票/ETF）</SelectItem>
+                                    <SelectItem value="otc">场外（基金/银行理财）</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
                         <div className="grid grid-cols-4 items-center gap-4">
                             <Label className="text-right">预设投入(¥)</Label>
@@ -732,6 +837,9 @@ export default function Home() {
                 <div>
                     <CardTitle className="text-xl font-bold flex items-center gap-2">
                         <Wallet className="h-5 w-5 text-gray-500"/> {portfolio.account.name}
+                        {portfolio.account.marketType === 'otc' && (
+                            <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded">场外</span>
+                        )}
                         <Button variant="ghost" size="sm" onClick={() => openEditDialog(portfolio.account)}>
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
                         </Button>
@@ -803,7 +911,7 @@ export default function Home() {
                                         <div className="text-xs text-muted-foreground">{pos.symbol}</div>
                                     </TableCell>
                                     <TableCell className="text-right">
-                                        <div>{pos.shares} 股</div>
+                                        <div>{pos.shares} {portfolio.account.marketType === 'otc' ? '份' : '股'}</div>
                                         <div className="text-xs text-muted-foreground">@ {pos.price}</div>
                                     </TableCell>
                                     <TableCell className="text-right font-medium">
@@ -823,7 +931,7 @@ export default function Home() {
                                     <TableCell className="text-right">
                                         {pos.actionShares !== 0 && (
                                             <span className={`px-2 py-1 rounded text-xs font-bold ${pos.actionShares > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                                                {pos.actionShares > 0 ? "买入" : "卖出"} {Math.abs(pos.actionShares)}
+                                                {pos.actionShares > 0 ? "买入" : "卖出"} {Math.abs(pos.actionShares)} {portfolio.account.marketType === 'otc' ? '份' : '股'}
                                             </span>
                                         )}
                                         {pos.actionShares === 0 && <span className="text-gray-400">-</span>}
@@ -849,6 +957,11 @@ export default function Home() {
                 <Button variant="outline" size="sm" onClick={() => openTxDialog(portfolio.account.id)}>
                     <Plus className="mr-2 h-4 w-4"/> 记一笔
                 </Button>
+                {portfolio.account.marketType === 'otc' && (
+                    <Button variant="outline" size="sm" onClick={() => openManualHoldingDialog(portfolio.account)}>
+                        记录份额
+                    </Button>
+                )}
             </CardFooter>
         </Card>
       ))}
@@ -887,7 +1000,7 @@ export default function Home() {
                      </Select>
                 </div>
                 {/* 现有持仓选择 */}
-                {newTx.accountId > 0 && portfolios.find(p => p.account.id === newTx.accountId)?.positions.length > 0 && (
+                {newTx.accountId > 0 && (portfolios.find(p => p.account.id === newTx.accountId)?.positions.length || 0) > 0 && (
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label className="text-right">现有持仓</Label>
                         <Select 
@@ -898,11 +1011,14 @@ export default function Home() {
                                 <SelectValue placeholder="选择持仓资产（可选）" />
                             </SelectTrigger>
                             <SelectContent>
-                                {portfolios.find(p => p.account.id === newTx.accountId)?.positions.map(pos => (
-                                    <SelectItem key={pos.symbol} value={pos.symbol}>
-                                        {pos.name || pos.symbol} ({pos.symbol}) - 持有 {pos.shares} 股
-                                    </SelectItem>
-                                ))}
+                                {portfolios.find(p => p.account.id === newTx.accountId)?.positions.map(pos => {
+                                    const isOTC = portfolios.find(p => p.account.id === newTx.accountId)?.account.marketType === 'otc';
+                                    return (
+                                        <SelectItem key={pos.symbol} value={pos.symbol}>
+                                            {pos.name || pos.symbol} ({pos.symbol}) - 持有 {pos.shares} {isOTC ? '份' : '股'}
+                                        </SelectItem>
+                                    );
+                                })}
                             </SelectContent>
                         </Select>
                     </div>
@@ -915,7 +1031,9 @@ export default function Home() {
                            className="col-span-3" />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
-                    <Label className="text-right">数量 (股)</Label>
+                    <Label className="text-right">
+                        数量 ({portfolios.find(p => p.account.id === newTx.accountId)?.account.marketType === 'otc' ? '份' : '股'})
+                    </Label>
                     <Input type="number" 
                            value={newTx.shares} 
                            onChange={e => setNewTx({...newTx, shares: e.target.value})} 
@@ -923,7 +1041,8 @@ export default function Home() {
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
                     <Label className="text-right">单价 (可选)</Label>
-                    <Input type="number" placeholder="留空自动获取" 
+                    <Input type="number" 
+                           placeholder={portfolios.find(p => p.account.id === newTx.accountId)?.account.marketType === 'otc' ? '场外账户需手动输入' : '留空自动获取'} 
                            value={newTx.price} 
                            onChange={e => setNewTx({...newTx, price: e.target.value})} 
                            className="col-span-3" />
@@ -1159,6 +1278,107 @@ export default function Home() {
             </DialogFooter>
         </DialogContent>
       </Dialog>
+
+            <Dialog open={isManualHoldingOpen} onOpenChange={setIsManualHoldingOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>记录当前份额（场外）</DialogTitle>
+                        <DialogDescription>
+                            适合场外账户按当前实际持有份额做快照；填 0 可清空该资产持仓。
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                        <div className="text-sm text-muted-foreground">
+                            账户：{manualHoldingAccount?.name || '-'}
+                        </div>
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label className="text-right">资产类型</Label>
+                            <Select
+                                value={manualHolding.assetType}
+                                onValueChange={val => setManualHolding({ ...manualHolding, assetType: val, assetId: '', symbol: '', name: '' })}
+                            >
+                                <SelectTrigger className="col-span-3"><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="existing">现有资产</SelectItem>
+                                    <SelectItem value="new">新资产</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        {manualHolding.assetType === 'existing' ? (
+                            <div className="grid grid-cols-4 items-center gap-4">
+                                <Label className="text-right">资产</Label>
+                                <Select value={manualHolding.assetId} onValueChange={val => setManualHolding({ ...manualHolding, assetId: val })}>
+                                    <SelectTrigger className="col-span-3"><SelectValue placeholder="选择资产" /></SelectTrigger>
+                                    <SelectContent>
+                                        {availableAssets.map(asset => (
+                                            <SelectItem key={asset.id} value={asset.id.toString()}>
+                                                {asset.name || asset.symbol} ({asset.symbol})
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        ) : (
+                            <>
+                                <div className="grid grid-cols-4 items-center gap-4">
+                                    <Label className="text-right">代码</Label>
+                                    <Input
+                                        className="col-span-3"
+                                        value={manualHolding.symbol}
+                                        onChange={e => setManualHolding({ ...manualHolding, symbol: e.target.value })}
+                                        placeholder="例如: 017888"
+                                    />
+                                </div>
+                                <div className="grid grid-cols-4 items-center gap-4">
+                                    <Label className="text-right">名称</Label>
+                                    <Input
+                                        className="col-span-3"
+                                        value={manualHolding.name}
+                                        onChange={e => setManualHolding({ ...manualHolding, name: e.target.value })}
+                                        placeholder="可选，默认用代码"
+                                    />
+                                </div>
+                            </>
+                        )}
+
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label className="text-right">当前份额</Label>
+                            <Input
+                                type="number"
+                                className="col-span-3"
+                                value={manualHolding.shares}
+                                onChange={e => setManualHolding({ ...manualHolding, shares: e.target.value })}
+                                placeholder="例如: 1234.56"
+                            />
+                        </div>
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label className="text-right">平均成本</Label>
+                            <Input
+                                type="number"
+                                className="col-span-3"
+                                value={manualHolding.avgCost}
+                                onChange={e => setManualHolding({ ...manualHolding, avgCost: e.target.value })}
+                                placeholder="可选"
+                            />
+                        </div>
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label className="text-right">当前净值</Label>
+                            <Input
+                                type="number"
+                                className="col-span-3"
+                                value={manualHolding.currentPrice}
+                                onChange={e => setManualHolding({ ...manualHolding, currentPrice: e.target.value })}
+                                placeholder="可选，用于更新市值"
+                            />
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setIsManualHoldingOpen(false)}>取消</Button>
+                        <Button onClick={handleRecordManualHolding}>保存份额</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
 
     </div>
   );
