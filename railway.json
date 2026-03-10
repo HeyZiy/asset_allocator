@@ -3,15 +3,6 @@
     "build": {
         "builder": "NIXPACKS"
     },
-    "nixpacksPlan": {
-        "phases": {
-            "setup": {
-                "nixPkgs": [
-                    "nodejs_22"
-                ]
-            }
-        }
-    },
     "deploy": {
         "startCommand": "npx prisma migrate deploy && next start",
         "restartPolicyType": "ON_FAILURE",
