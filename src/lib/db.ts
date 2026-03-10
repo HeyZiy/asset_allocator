@@ -1,10 +1,10 @@
 import { PrismaClient } from '@/generated/prisma';
-import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3';
 
 const prismaClientSingleton = () => {
-  const url = process.env.DATABASE_URL ?? 'file:./asset_tracker.db';
-  const adapter = new PrismaBetterSqlite3({ url });
-  return new PrismaClient({ adapter });
+  if (!process.env.DATABASE_URL) {
+    process.env.DATABASE_URL = 'file:./asset_tracker.db';
+  }
+  return new PrismaClient();
 };
 
 declare global {

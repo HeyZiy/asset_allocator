@@ -1,11 +1,8 @@
 import 'dotenv/config';
-import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3';
 import { PrismaClient } from '../src/generated/prisma';
 import { enrichAssetFromEastMoney } from '../src/lib/price-fetcher';
 
-const url = process.env.DATABASE_URL ?? 'file:./asset_tracker.db';
-const adapter = new PrismaBetterSqlite3({ url });
-const prisma = new PrismaClient({ adapter });
+const prisma = new PrismaClient();
 
 async function main() {
   const assets = await prisma.asset.findMany({
