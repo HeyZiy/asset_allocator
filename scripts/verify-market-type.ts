@@ -1,4 +1,6 @@
-import prisma from '../src/lib/db';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 async function main() {
   const account = await prisma.account.findFirst({ orderBy: { id: 'asc' } });

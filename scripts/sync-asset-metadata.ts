@@ -1,6 +1,7 @@
-import 'dotenv/config';
-import { PrismaClient } from '../src/generated/prisma';
+import { PrismaClient } from '@prisma/client';
 import { enrichAssetFromEastMoney } from '../src/lib/price-fetcher';
+
+ // Railway already provides environment variables, no need for dotenv config
 
 const prisma = new PrismaClient();
 
