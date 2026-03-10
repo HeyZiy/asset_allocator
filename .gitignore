@@ -36,3 +36,6 @@ Thumbs.db
 # Database files
 *.db
 *.sqlite
+
+# Generated files
+src/generated/
