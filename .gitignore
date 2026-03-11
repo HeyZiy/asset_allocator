@@ -39,3 +39,7 @@ Thumbs.db
 
 # Generated files
 src/generated/
+
+# Prisma Seed
+prisma/seed.ts
+prisma/seed.js
