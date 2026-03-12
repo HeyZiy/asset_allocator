@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { RefreshCw, Plus, ArrowRight, Wallet, TrendingUp, DollarSign } from 'lucide-react';
+import { RefreshCw, Plus, ArrowRight, Wallet, TrendingUp, DollarSign, History, Trash2 } from 'lucide-react';
 
 // --- Interfaces matching new backend logic ---
 
@@ -46,12 +46,35 @@ interface PortfolioResponse {
     positions: PortfolioPosition[];
 }
 
+interface Transaction {
+    id: number;
+    accountId: number;
+    assetId: number;
+    type: 'buy' | 'sell';
+    amount: number;
+    price: number;
+    shares: number;
+    date: string;
+    createdAt: string;
+    asset: {
+        id: number;
+        symbol: string;
+        name: string;
+    };
+    account: {
+        id: number;
+        name: string;
+    };
+}
+
 // --- Main Component ---
 
 export default function Home() {
     const [portfolios, setPortfolios] = useState<PortfolioResponse[]>([]);
     const [loading, setLoading] = useState(false);
     const [refreshingPrices, setRefreshingPrices] = useState(false);
+    const [submittingTx, setSubmittingTx] = useState(false);
+    const [submittingHolding, setSubmittingHolding] = useState(false);
 
     // Dialog States
     const [isAddAccountOpen, setIsAddAccountOpen] = useState(false);
@@ -63,6 +86,7 @@ export default function Home() {
     const [isEditAssetOpen, setIsEditAssetOpen] = useState(false);
     const [isDepositCashOpen, setIsDepositCashOpen] = useState(false);
     const [isManualHoldingOpen, setIsManualHoldingOpen] = useState(false);
+    const [isTransactionHistoryOpen, setIsTransactionHistoryOpen] = useState(false);
 
     // Selection Context
     const [selectedAccountId, setSelectedAccountId] = useState<number | null>(null);
@@ -104,6 +128,11 @@ export default function Home() {
         price: '',
         date: ''
     });
+
+    // Transaction History State
+    const [transactions, setTransactions] = useState<Transaction[]>([]);
+    const [loadingTransactions, setLoadingTransactions] = useState(false);
+    const [selectedAccountForHistory, setSelectedAccountForHistory] = useState<number | null>(null);
 
     // Init Date on client only to avoid hydration mismatch
     useEffect(() => {
@@ -223,26 +252,32 @@ export default function Home() {
     };
 
     const handleCreateTransaction = async () => {
+        if (submittingTx) return;
         if (!newTx.accountId) return alert('请选择账户');
         if (!newTx.symbol && !newTx.price) return alert('请输入代码');
 
-        const res = await fetch('/api/transactions', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                ...newTx,
-                shares: parseFloat(newTx.shares),
-                price: newTx.price ? parseFloat(newTx.price) : null,
-            }),
-        });
+        setSubmittingTx(true);
+        try {
+            const res = await fetch('/api/transactions', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    ...newTx,
+                    shares: parseFloat(newTx.shares),
+                    price: newTx.price ? parseFloat(newTx.price) : null,
+                }),
+            });
 
-        if (res.ok) {
-            setIsTxOpen(false);
-            setNewTx({ accountId: 0, type: 'buy', symbol: '', shares: '0', price: '', date: new Date().toISOString().split('T')[0] });
-            fetchAllPortfolios();
-        } else {
-            const err = await res.json();
-            alert(err.error || '交易创建失败');
+            if (res.ok) {
+                setIsTxOpen(false);
+                setNewTx({ accountId: 0, type: 'buy', symbol: '', shares: '0', price: '', date: new Date().toISOString().split('T')[0] });
+                await fetchAllPortfolios();
+            } else {
+                const err = await res.json();
+                alert(err.error || '交易创建失败');
+            }
+        } finally {
+            setSubmittingTx(false);
         }
     };
 
@@ -525,6 +560,7 @@ export default function Home() {
     };
 
     const handleRecordManualHolding = async () => {
+        if (submittingHolding) return;
         if (!manualHoldingAccount) return;
 
         if (!manualHolding.shares || isNaN(parseFloat(manualHolding.shares)) || parseFloat(manualHolding.shares) < 0) {
@@ -539,41 +575,46 @@ export default function Home() {
             return alert('请输入资产代码');
         }
 
-        const payload: any = {
-            accountId: manualHoldingAccount.id,
-            shares: parseFloat(manualHolding.shares),
-        };
+        setSubmittingHolding(true);
+        try {
+            const payload: any = {
+                accountId: manualHoldingAccount.id,
+                shares: parseFloat(manualHolding.shares),
+            };
 
-        if (manualHolding.avgCost.trim() !== '') {
-            payload.avgCost = parseFloat(manualHolding.avgCost);
-        }
+            if (manualHolding.avgCost.trim() !== '') {
+                payload.avgCost = parseFloat(manualHolding.avgCost);
+            }
 
-        if (manualHolding.currentPrice.trim() !== '') {
-            payload.currentPrice = parseFloat(manualHolding.currentPrice);
-        }
+            if (manualHolding.currentPrice.trim() !== '') {
+                payload.currentPrice = parseFloat(manualHolding.currentPrice);
+            }
 
-        if (manualHolding.assetType === 'existing') {
-            payload.assetId = parseInt(manualHolding.assetId);
-        } else {
-            payload.symbol = manualHolding.symbol.trim();
-            payload.name = manualHolding.name.trim() || manualHolding.symbol.trim();
-            payload.assetType = 'fund';
-        }
+            if (manualHolding.assetType === 'existing') {
+                payload.assetId = parseInt(manualHolding.assetId);
+            } else {
+                payload.symbol = manualHolding.symbol.trim();
+                payload.name = manualHolding.name.trim() || manualHolding.symbol.trim();
+                payload.assetType = 'fund';
+            }
 
-        const res = await fetch('/api/holdings', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
-        });
+            const res = await fetch('/api/holdings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            });
 
-        if (res.ok) {
-            setIsManualHoldingOpen(false);
-            setManualHoldingAccount(null);
-            await fetchAvailableAssets();
-            await fetchAllPortfolios();
-        } else {
-            const err = await res.json();
-            alert(err.error || '记录份额失败');
+            if (res.ok) {
+                setIsManualHoldingOpen(false);
+                setManualHoldingAccount(null);
+                await fetchAvailableAssets();
+                await fetchAllPortfolios();
+            } else {
+                const err = await res.json();
+                alert(err.error || '记录份额失败');
+            }
+        } finally {
+            setSubmittingHolding(false);
         }
     };
 
@@ -605,6 +646,58 @@ export default function Home() {
             fetchAllPortfolios();
         } else {
             alert('转入失败');
+        }
+    };
+
+    // --- Transaction History Functions ---
+
+    const fetchTransactions = async (accountId?: number) => {
+        setLoadingTransactions(true);
+        try {
+            const url = accountId ? `/api/transactions?accountId=${accountId}` : '/api/transactions';
+            const res = await fetch(url);
+            const data = await res.json();
+            if (Array.isArray(data)) {
+                setTransactions(data);
+            } else {
+                setTransactions([]);
+            }
+        } catch (error) {
+            console.error('Failed to fetch transactions', error);
+            setTransactions([]);
+        } finally {
+            setLoadingTransactions(false);
+        }
+    };
+
+    const openTransactionHistory = async (accountId: number) => {
+        setSelectedAccountForHistory(accountId);
+        await fetchTransactions(accountId);
+        setIsTransactionHistoryOpen(true);
+    };
+
+    const handleDeleteTransaction = async (transactionId: number) => {
+        if (!confirm('确定要删除这条交易记录吗？删除后会自动同步更新持仓和现金余额。')) {
+            return;
+        }
+
+        try {
+            const res = await fetch(`/api/transactions/${transactionId}`, {
+                method: 'DELETE',
+            });
+
+            if (res.ok) {
+                // 刷新交易记录和持仓数据
+                await fetchTransactions(selectedAccountForHistory || undefined);
+                await fetchAllPortfolios();
+                alert('交易记录已删除，持仓和现金已同步更新');
+            } else {
+                const err = await res.json();
+                alert(err.error || '删除失败');
+            }
+        } catch (error) {
+            console.error('Failed to delete transaction', error);
+            alert('删除失败');
         }
     };
 
@@ -969,6 +1062,9 @@ export default function Home() {
                         </Table>
                     </CardContent>
                     <CardFooter className="bg-muted/50 p-3 flex justify-end gap-2">
+                        <Button variant="outline" size="sm" onClick={() => openTransactionHistory(portfolio.account.id)}>
+                            <History className="mr-2 h-4 w-4" /> 交易记录
+                        </Button>
                         <Button variant="outline" size="sm" onClick={() => openAllocationDialog(portfolio.account.id)}>
                             <TrendingUp className="mr-2 h-4 w-4" /> 配置
                         </Button>
@@ -1074,7 +1170,9 @@ export default function Home() {
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button onClick={handleCreateTransaction}>提交交易</Button>
+                        <Button onClick={handleCreateTransaction} disabled={submittingTx}>
+                            {submittingTx ? '提交中...' : '提交交易'}
+                        </Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
@@ -1393,7 +1491,86 @@ export default function Home() {
                     </div>
                     <DialogFooter>
                         <Button variant="outline" onClick={() => setIsManualHoldingOpen(false)}>取消</Button>
-                        <Button onClick={handleRecordManualHolding}>保存份额</Button>
+                        <Button onClick={handleRecordManualHolding} disabled={submittingHolding}>
+                            {submittingHolding ? '保存中...' : '保存份额'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Transaction History Dialog */}
+            <Dialog open={isTransactionHistoryOpen} onOpenChange={setIsTransactionHistoryOpen}>
+                <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle>交易记录</DialogTitle>
+                        <DialogDescription>
+                            查看账户的所有交易记录，删除交易会同步更新持仓和现金余额。
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="py-4">
+                        {loadingTransactions ? (
+                            <div className="text-center py-8">加载中...</div>
+                        ) : transactions.length === 0 ? (
+                            <div className="text-center py-8 text-muted-foreground">暂无交易记录</div>
+                        ) : (
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>日期</TableHead>
+                                        <TableHead>类型</TableHead>
+                                        <TableHead>资产</TableHead>
+                                        <TableHead className="text-right">份额</TableHead>
+                                        <TableHead className="text-right">价格</TableHead>
+                                        <TableHead className="text-right">金额</TableHead>
+                                        <TableHead className="text-right">操作</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {transactions.map((tx) => (
+                                        <TableRow key={tx.id}>
+                                            <TableCell>
+                                                {new Date(tx.date).toLocaleDateString('zh-CN')}
+                                            </TableCell>
+                                            <TableCell>
+                                                <span className={`px-2 py-1 rounded text-xs font-medium ${
+                                                    tx.type === 'buy' 
+                                                        ? 'bg-green-100 text-green-700' 
+                                                        : 'bg-red-100 text-red-700'
+                                                }`}>
+                                                    {tx.type === 'buy' ? '买入' : '卖出'}
+                                                </span>
+                                            </TableCell>
+                                            <TableCell>
+                                                <div className="font-medium">{tx.asset?.name || '-'}</div>
+                                                <div className="text-xs text-muted-foreground">{tx.asset?.symbol || '-'}</div>
+                                            </TableCell>
+                                            <TableCell className="text-right">
+                                                {tx.shares}
+                                            </TableCell>
+                                            <TableCell className="text-right">
+                                                ¥{tx.price?.toFixed(4) || '-'}
+                                            </TableCell>
+                                            <TableCell className="text-right font-medium">
+                                                ¥{tx.amount?.toLocaleString() || '-'}
+                                            </TableCell>
+                                            <TableCell className="text-right">
+                                                <Button
+                                                    size="sm"
+                                                    variant="ghost"
+                                                    className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                                                    onClick={() => handleDeleteTransaction(tx.id)}
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        )}
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setIsTransactionHistoryOpen(false)}>关闭</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
