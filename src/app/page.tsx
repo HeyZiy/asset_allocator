@@ -719,23 +719,25 @@ export default function Home() {
 
     const getSortedPositions = (positions: PortfolioPosition[]) => {
         if (!sortConfig.key) return positions;
-        
+
+        const key = sortConfig.key;
+
         return [...positions].sort((a, b) => {
-            const aValue = a[sortConfig.key!];
-            const bValue = b[sortConfig.key!];
-            
+            const aValue = a[key];
+            const bValue = b[key];
+
             if (aValue === undefined || bValue === undefined) return 0;
-            
+
             if (typeof aValue === 'number' && typeof bValue === 'number') {
                 return sortConfig.direction === 'asc' ? aValue - bValue : bValue - aValue;
             }
-            
+
             if (typeof aValue === 'string' && typeof bValue === 'string') {
-                return sortConfig.direction === 'asc' 
-                    ? aValue.localeCompare(bValue) 
+                return sortConfig.direction === 'asc'
+                    ? aValue.localeCompare(bValue)
                     : bValue.localeCompare(aValue);
             }
-            
+
             return 0;
         });
     };
